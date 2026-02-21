@@ -1,0 +1,37 @@
+name: Daily Library Scraper
+
+# This controls WHEN the script runs
+on:
+  schedule:
+    # Runs at 2:00 AM UTC every day
+    - cron: '0 2 * * *' 
+  # Allows us to hit a "Run" button in GitHub to test it!
+  workflow_dispatch: 
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Grabs the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # 2. Installs Python on the GitHub server
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      # 3. Installs the required Python packages
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+          
+      # 4. Runs the actual scraper script
+      - name: Execute Python Scraper
+        env:
+          # Injects the Neon database password securely
+          DATABASE_URL: ${{ secrets.DATABASE_URL }} 
+        run: python scripts/scraper_mvp.py
