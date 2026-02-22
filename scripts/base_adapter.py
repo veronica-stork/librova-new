@@ -38,7 +38,7 @@ class BaseLibraryScraper(ABC):
         }
 
         try:
-            response = requests.post(self.api_url, json=event.to_dict(), headers=headers)
+            response = requests.post(self.api_url, json=event.to_dict(), headers=headers, timeout=10)
             
             if response.status_code == 201:
                 result = response.json()
@@ -47,9 +47,9 @@ class BaseLibraryScraper(ABC):
                 else:
                     print(f"⚠️ Skipped duplicate: {event.title}")
             else:
-                print(f"❌ Failed to insert {event.title}: {response.text}")
+                print(f"❌ Failed to insert {event.title}: Status {response.status_code} - {response.text}")
                 
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             print(f"Network error while sending {event.title}: {e}")
 
     def run(self) -> None:

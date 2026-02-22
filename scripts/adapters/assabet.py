@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
@@ -19,7 +20,10 @@ class AssabetAdapter(BaseLibraryScraper):
         returns a BeautifulSoup object.
         """
         print(f"📡 Fetching Assabet calendar data from: {self.target_url}...")
-        headers = {'User-Agent': 'LocalLibraryAggregator/1.0 (veronica.stork@gmail.com)'}
+        
+        # Pull the User-Agent from .env.local, fallback to a generic one if missing
+        bot_agent = os.getenv('SCRAPER_USER_AGENT', 'LocalLibraryAggregator/1.0 (Contact info hidden)')
+        headers = {'User-Agent': bot_agent}
         
         try:
             response = requests.get(self.target_url, headers=headers)
@@ -32,7 +36,7 @@ class AssabetAdapter(BaseLibraryScraper):
     def _parse_datetime(self, date_str: str, time_str: str) -> datetime:
         """
         Private helper method to clean Assabet's specific time format 
-        (e.g., handling the '—' and missing AM/PM) into a valid datetime object.
+        and handle year-end rollovers safely.
         """
         start_time = time_str.split('—')[0].strip()
         
@@ -40,7 +44,18 @@ class AssabetAdapter(BaseLibraryScraper):
             period = time_str.split(' ')[-1]
             start_time = f"{start_time} {period}"
 
-        current_year = datetime.now().year
+        # Handle the New Year Rollover bug
+        now = datetime.now()
+        current_year = now.year
+        
+        # Extract the month name from the string (e.g., "Monday, January 5" -> "January")
+        month_str = date_str.split(',')[1].strip().split(' ')[0]
+        event_month = datetime.strptime(month_str, "%B").month
+        
+        # If we are in December but looking at a January event, bump the year forward
+        if now.month == 12 and event_month == 1:
+            current_year += 1
+
         full_date_str = f"{date_str} {current_year} {start_time}"
         
         try:
@@ -88,7 +103,6 @@ class AssabetAdapter(BaseLibraryScraper):
 
             # Evaluate if the event falls within the rolling 7-day window
             if now <= dt_obj <= seven_days_later:
-                # Map to our strict dataclass structure
                 event = StandardizedEvent(
                     title=title,
                     start_time=dt_obj,
@@ -98,7 +112,6 @@ class AssabetAdapter(BaseLibraryScraper):
                 events.append(event)
                 
             elif dt_obj > seven_days_later:
-                # If we hit an event more than 7 days out, we ignore it.
                 pass 
                 
         return events
