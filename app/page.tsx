@@ -1,64 +1,158 @@
-import Image from "next/image";
 
-export default function Home() {
+import EventCard, { LibraryEvent } from '../components/EventCard'
+
+export default function LibrovaHome() {
+const dummyEvents: LibraryEvent[] = [
+  {
+    id: "evt_001",
+    title: "Junior Miners: Minecraft Free Play",
+    libraryName: "Tivoli Free Library",
+    date: "Feb 28, 2026",
+    time: "3:30 PM",
+    description: "Calling all Kindergarteners and early elementary builders! Join us for an afternoon of creative mode block-building. Laptops provided, or bring your own device. Space is limited so grab a spot!",
+    sourceUrl: "#",
+    category: "Kids"
+  },
+  {
+    id: "evt_002",
+    title: "Teen Robotics Workshop",
+    libraryName: "Red Hook Public Library",
+    date: "Mar 2, 2026",
+    time: "4:00 PM",
+    description: "Learn to build and program simple robots using Arduino kits. No prior coding experience required. All materials are provided by the library.",
+    sourceUrl: "#",
+    category: "STEM"
+  },
+  {
+    id: "evt_003",
+    title: "Adult Fiction Book Club",
+    libraryName: "Starr Library",
+    date: "Mar 5, 2026",
+    time: "6:30 PM",
+    description: "This month we are discussing 'The Midnight Library' by Matt Haig. Coffee, tea, and light refreshments will be served in the community room.",
+    sourceUrl: "#",
+    category: "Adults"
+  }
+];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200">
+      
+      {/* Navigation Bar */}
+      <nav className="bg-white border-b-4 border-teal-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-20 items-center">
+            <div className="flex-shrink-0 flex items-center gap-3">
+              {/* Logo Stub */}
+              <div className="w-10 h-10 bg-rose-500 rounded-2xl rotate-3 flex items-center justify-center shadow-sm">
+                <span className="text-white font-extrabold text-2xl -rotate-3">L</span>
+              </div>
+              <h1 className="text-3xl font-extrabold text-teal-900 tracking-tight">Librova</h1>
+            </div>
+            <div className="flex items-center space-x-8">
+              <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Explore</span>
+              <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Libraries</span>
+              {/* Mobile Menu Stub */}
+              <div className="sm:hidden cursor-pointer text-teal-700 bg-teal-100 p-2 rounded-xl">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </nav>
+
+      {/* Main Content Area */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        {/* Search & Location Hero Section */}
+        <section className="bg-teal-500 rounded-[2rem] shadow-[0_8px_0_rgb(15,118,110)] border-4 border-teal-700 p-8 md:p-12 mb-14 relative overflow-hidden">
+          {/* Decorative background element */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-400 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
+
+          <div className="max-w-4xl mx-auto relative z-10">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-4 text-center drop-shadow-sm">
+              Find Library Events Near You
+            </h2>
+            <p className="text-center text-teal-100 font-medium text-lg mb-10">
+              Discover programs, workshops, and activities happening in your local network.
+            </p>
+
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-stretch">
+              {/* Search Bar Stub */}
+              <div className="w-full relative flex-grow max-w-lg">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Enter zip code or city..."
+                  className="w-full h-full pl-12 pr-4 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-medium text-lg shadow-inner transition-colors"
+                  readOnly 
+                />
+              </div>
+              
+              {/* Geolocation Button Stub (Tactile) */}
+              <button className="flex items-center justify-center px-8 py-4 bg-amber-400 text-amber-950 font-bold text-lg rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap">
+                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Use My Location
+              </button>
+            </div>
+
+            {/* Filters Section Stub */}
+            <div className="mt-10 pt-6 border-t-2 border-teal-400">
+              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+                
+                {/* Radius Dropdown Stub */}
+                <div className="flex items-center space-x-3 w-full lg:w-auto bg-teal-600 p-2 rounded-xl">
+                  <label className="text-sm font-bold text-teal-50 whitespace-nowrap px-2">Radius:</label>
+                  <select className="bg-white border-2 border-teal-700 text-slate-800 text-sm font-bold rounded-lg focus:ring-0 outline-none block py-2 px-3 cursor-pointer">
+                    <option>Within 10 miles</option>
+                    <option>Within 25 miles</option>
+                    <option>Within 50 miles</option>
+                  </select>
+                </div>
+
+                {/* Category Toggles Stub */}
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                  {['Kids', 'Teens', 'Adults', 'STEM', 'Arts & Crafts', 'Book Clubs'].map((category, index) => (
+                    <button
+                      key={category}
+                      className={`px-5 py-2 rounded-xl font-bold text-sm border-b-4 transition-all cursor-pointer ${
+                        index === 0 
+                          ? 'bg-rose-500 border-rose-700 text-white active:border-b-0 active:translate-y-1' 
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 active:border-b-0 active:translate-y-1'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Event Feed Layout Stub */}
+        <section>
+          <div className="flex justify-between items-end mb-6 px-2">
+            <h3 className="text-2xl font-extrabold text-teal-900">Upcoming Events</h3>
+            <span className="text-sm font-bold text-teal-600 bg-teal-100 px-3 py-1 rounded-full">6 results</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+{dummyEvents.map((event) => (
+  <EventCard key={event.id} event={event} />
+))}
+          </div>
+        </section>
+
       </main>
     </div>
   );
