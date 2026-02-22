@@ -34,4 +34,4 @@ jobs:
         env:
           # Injects the Neon database password securely
           DATABASE_URL: ${{ secrets.DATABASE_URL }} 
-        run: python scripts/scraper_mvp.py
+        run: python scripts/main.py
