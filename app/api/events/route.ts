@@ -9,26 +9,35 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Initialize Neon connection (make sure POSTGRES_URL or DATABASE_URL is in your .env.local)
+    // 2. Initialize Neon connection
     const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL || '');
 
     // 3. Parse the incoming JSON payload
     const event = await request.json();
     
-    // 4. Destructure and set defaults
+    // 4. Destructure the payload (No default library_id!)
     const {
-      library_id = 3,
+      library_id,
       title,
       description,
       start_time,
       end_time = null, 
       registration_link = null,
+      category_id = null, // Added to match models.py
     } = event;
 
-    // 5. Insert into PostgreSQL
+    // 5. Explicit Validation
+    if (!library_id || !title || !start_time) {
+      return NextResponse.json(
+        { error: 'Missing required fields: library_id, title, or start_time' }, 
+        { status: 400 }
+      );
+    }
+
+    // 6. Insert into PostgreSQL
     const result = await sql`
-      INSERT INTO events (library_id, title, description, start_time, end_time, registration_link)
-      VALUES (${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${registration_link})
+      INSERT INTO events (library_id, title, description, start_time, end_time, registration_link, category_id)
+      VALUES (${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${registration_link}, ${category_id})
       ON CONFLICT (library_id, title, start_time) DO NOTHING
       RETURNING *;
     `;
