@@ -19,7 +19,7 @@ class AssabetAdapter(BaseLibraryScraper):
         returns a BeautifulSoup object.
         """
         print(f"📡 Fetching Assabet calendar data from: {self.target_url}...")
-        headers = {'User-Agent': 'Librova-Assabet-Adapter/1.0'}
+        headers = {'User-Agent': 'LocalLibraryAggregator/1.0 (veronica.stork@gmail.com)'}
         
         try:
             response = requests.get(self.target_url, headers=headers)
