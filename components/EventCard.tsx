@@ -1,5 +1,13 @@
 import React from 'react';
 
+// 1. Map the database IDs back to UI labels
+export const CATEGORY_MAP: Record<number, string> = {
+  1: "Storytime", 2: "Crafts", 3: "Book Talks", 4: "Games", 
+  5: "History", 6: "Health", 7: "STEM", 8: "Teens", 
+  9: "Adults", 10: "Family", 11: "Children", 
+  12: "Early Childhood", 13: "Tech Help", 14: "Special Needs", 15: "ESL"
+};
+
 // Define the shape of your event JSON data
 export interface LibraryEvent {
   id: string;
@@ -9,19 +17,37 @@ export interface LibraryEvent {
   time: string;
   description: string;
   sourceUrl: string;
-  category: string;
+  category_ids?: number[]; 
+  distance?: number; 
 }
 
 export default function EventCard({ event }: { event: LibraryEvent }) {
+  
+  // Ensures we have an array to map over even if there are no categories
+  const categories = event.category_ids || [];
+
   return (
     <div className="bg-white rounded-[2rem] border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] hover:-translate-y-1 hover:shadow-[0_8px_0_rgb(241,245,249)] transition-all flex flex-col h-full overflow-hidden text-left relative group">
       
-      {/* Category Badge */}
-      <div className="absolute top-4 right-4 bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full border-2 border-amber-200 z-10 rotate-3 group-hover:rotate-6 transition-transform">
-        {event.category}
+      {/* Category Badges */}
+      <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5 z-10">
+        {categories.map((id, index) => {
+          const label = CATEGORY_MAP[id];
+          if (!label) return null; // Skip if ID is unknown
+          
+          return (
+            <div 
+              key={id} 
+              // Alternating rotations for a playful stacked look
+              className={`bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full border-2 border-amber-200 shadow-sm transition-transform ${index % 2 === 0 ? 'rotate-2 group-hover:rotate-6' : '-rotate-2 group-hover:-rotate-6'}`}
+            >
+              {label}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="p-6 flex-grow flex flex-col">
+      <div className="p-6 grow flex flex-col">
         {/* Date & Time */}
         <div className="flex items-center text-teal-600 font-bold text-sm mb-3 mt-4">
           <svg className="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,11 +61,17 @@ export default function EventCard({ event }: { event: LibraryEvent }) {
           {event.title}
         </h4>
         <div className="flex items-center text-slate-500 font-semibold text-sm mb-4">
-          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          {event.libraryName}
+          <span className="truncate">
+            {event.libraryName}
+            {/* Conditionally render the distance if it exists */}
+            {event.distance !== undefined && (
+              <span className="ml-1 text-teal-600 font-bold">({event.distance} mi)</span>
+            )}
+          </span>
         </div>
 
         {/* Description Snippet */}

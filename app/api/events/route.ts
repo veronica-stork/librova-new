@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       start_time,
       end_time = null, 
       registration_link = null,
-      category_id = null, // Added to match models.py
+      category_ids = [], 
     } = event;
 
     // 5. Explicit Validation
@@ -35,12 +35,21 @@ export async function POST(request: Request) {
     }
 
     // 6. Insert into PostgreSQL
-    const result = await sql`
-      INSERT INTO events (library_id, title, description, start_time, end_time, registration_link, category_id)
-      VALUES (${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${registration_link}, ${category_id})
-      ON CONFLICT (library_id, title, start_time) DO NOTHING
-      RETURNING *;
-    `;
+// 6. Insert into PostgreSQL with UPSERT logic
+const result = await sql`
+  INSERT INTO events (
+    library_id, title, description, start_time, end_time, registration_link, category_ids
+  )
+  VALUES (
+    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${registration_link}, ${category_ids}::int[]
+  )
+  ON CONFLICT (library_id, title, start_time) 
+  DO UPDATE SET 
+    category_ids = EXCLUDED.category_ids,
+    description = EXCLUDED.description,
+    registration_link = EXCLUDED.registration_link
+  RETURNING *;
+`;
 
     // Neon returns an array of rows directly
     return NextResponse.json({ success: true, inserted: result.length > 0 }, { status: 201 });

@@ -1,6 +1,6 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from zoneinfo import ZoneInfo # Time zone support
 
 @dataclass
@@ -12,7 +12,7 @@ class StandardizedEvent:
     # Optional fields default to None if the specific calendar doesn't provide them
     end_time: Optional[datetime] = None
     registration_link: Optional[str] = None
-    category_id: Optional[int] = None
+    category_ids: Optional[List[int]] = None
 
     def to_dict(self) -> dict:
         """

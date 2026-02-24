@@ -1,39 +1,87 @@
+"use client";
 
+import { useState } from 'react';
 import EventCard, { LibraryEvent } from '../components/EventCard'
 
 export default function LibrovaHome() {
-const dummyEvents: LibraryEvent[] = [
-  {
-    id: "evt_001",
-    title: "Junior Miners: Minecraft Free Play",
-    libraryName: "Tivoli Free Library",
-    date: "Feb 28, 2026",
-    time: "3:30 PM",
-    description: "Calling all Kindergarteners and early elementary builders! Join us for an afternoon of creative mode block-building. Laptops provided, or bring your own device. Space is limited so grab a spot!",
-    sourceUrl: "#",
-    category: "Kids"
-  },
-  {
-    id: "evt_002",
-    title: "Teen Robotics Workshop",
-    libraryName: "Red Hook Public Library",
-    date: "Mar 2, 2026",
-    time: "4:00 PM",
-    description: "Learn to build and program simple robots using Arduino kits. No prior coding experience required. All materials are provided by the library.",
-    sourceUrl: "#",
-    category: "STEM"
-  },
-  {
-    id: "evt_003",
-    title: "Adult Fiction Book Club",
-    libraryName: "Starr Library",
-    date: "Mar 5, 2026",
-    time: "6:30 PM",
-    description: "This month we are discussing 'The Midnight Library' by Matt Haig. Coffee, tea, and light refreshments will be served in the community room.",
-    sourceUrl: "#",
-    category: "Adults"
-  }
-];
+  // Initial dummy data to populate the screen on first load
+  const initialEvents: LibraryEvent[] = [
+    {
+      id: "evt_001",
+      title: "Junior Miners: Minecraft Free Play",
+      libraryName: "Tivoli Free Library",
+      date: "Feb 28, 2026",
+      time: "3:30 PM",
+      description: "Calling all Kindergarteners and early elementary builders! Join us for an afternoon of creative mode block-building. Laptops provided, or bring your own device. Space is limited so grab a spot!",
+      sourceUrl: "#",
+      category_ids: [11, 7]
+    },
+    {
+      id: "evt_002",
+      title: "Teen Robotics Workshop",
+      libraryName: "Red Hook Public Library",
+      date: "Mar 2, 2026",
+      time: "4:00 PM",
+      description: "Learn to build and program simple robots using Arduino kits. No prior coding experience required. All materials are provided by the library.",
+      sourceUrl: "#",
+      category_ids: [8,7]
+    },
+    {
+      id: "evt_003",
+      title: "Adult Fiction Book Club",
+      libraryName: "Starr Library",
+      date: "Mar 5, 2026",
+      time: "6:30 PM",
+      description: "This month we are discussing 'The Midnight Library' by Matt Haig. Coffee, tea, and light refreshments will be served in the community room.",
+      sourceUrl: "#",
+      category_ids: [9, 3]
+    }
+  ];
+
+  // State for events and loading UI
+  const [events, setEvents] = useState<LibraryEvent[]>(initialEvents);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch from our new Next.js API route
+ const fetchNearbyEvents = async (lat: number, lng: number) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/events/nearby?lat=${lat}&lng=${lng}&radius=15`);
+      
+      // NEW: If the response fails, extract the exact error message from the backend
+      if (!response.ok) {
+        const errorData = await response.text(); 
+        console.error(`Backend failed with status ${response.status}:`, errorData);
+        throw new Error(`API Error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setEvents(data); 
+    } catch (error) {
+      console.error("Failed to fetch nearby events:", error);
+      alert("Failed to load local events. Check the console for details.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Triggered when user clicks "Use My Location"
+  const handleLocationClick = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        fetchNearbyEvents(position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        alert("We need your location to find nearby libraries!");
+      }
+    );
+  };
 
   return (
     <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200">
@@ -95,13 +143,23 @@ const dummyEvents: LibraryEvent[] = [
                 />
               </div>
               
-              {/* Geolocation Button Stub (Tactile) */}
-              <button className="flex items-center justify-center px-8 py-4 bg-amber-400 text-amber-950 font-bold text-lg rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap">
-                <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Use My Location
+              {/* Geolocation Button (Now active) */}
+              <button 
+                onClick={handleLocationClick}
+                disabled={isLoading}
+                className="flex items-center justify-center px-8 py-4 bg-amber-400 text-amber-950 font-bold text-lg rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <span>Finding Libraries...</span>
+                ) : (
+                  <>
+                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Use My Location
+                  </>
+                )}
               </button>
             </div>
 
@@ -140,16 +198,20 @@ const dummyEvents: LibraryEvent[] = [
           </div>
         </section>
 
-        {/* Event Feed Layout Stub */}
+        {/* Event Feed Layout */}
         <section>
           <div className="flex justify-between items-end mb-6 px-2">
             <h3 className="text-2xl font-extrabold text-teal-900">Upcoming Events</h3>
-            <span className="text-sm font-bold text-teal-600 bg-teal-100 px-3 py-1 rounded-full">6 results</span>
+            {/* Dynamic Results Counter */}
+            <span className="text-sm font-bold text-teal-600 bg-teal-100 px-3 py-1 rounded-full">
+              {events.length} results
+            </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-{dummyEvents.map((event) => (
-  <EventCard key={event.id} event={event} />
-))}
+            {/* Dynamic Rendering of Events */}
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
           </div>
         </section>
 

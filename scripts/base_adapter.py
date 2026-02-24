@@ -3,6 +3,7 @@ import requests
 from abc import ABC, abstractmethod
 from typing import Any, List
 from models import StandardizedEvent
+from utils.categorization import extract_category_ids
 
 class BaseLibraryScraper(ABC):
     def __init__(self, library_id: int, target_url: str):
@@ -71,9 +72,12 @@ class BaseLibraryScraper(ABC):
             print("No valid events parsed within the timeframe. Exiting.")
             return
 
-        # 3. Load
+        # 3. Augment & Load
         print(f"Found {len(events)} events. Sending to database...")
         for event in events:
+            matched_categories = extract_category_ids(event.title, event.description)
+            event.category_ids = matched_categories
+
             self.send_to_database(event)
             
         print("🏁 Scraping completed.\n")

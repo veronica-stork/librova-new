@@ -1,11 +1,9 @@
-// app/api/events/nearby/route.ts
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   
-  // 1. Parse and validate query parameters
   const lat = parseFloat(searchParams.get('lat') || '');
   const lng = parseFloat(searchParams.get('lng') || '');
   const radiusMiles = parseFloat(searchParams.get('radius') || '10');
@@ -14,12 +12,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
   }
 
-  // 2. Initialize Neon connection
   const sql = neon(process.env.DATABASE_URL!);
 
   try {
-    // 3. Execute spatial join query
-    // We cast to ::geography to ensure distance is measured in meters on a sphere
     const events = await sql`
       SELECT 
         e.id, 
@@ -27,7 +22,7 @@ export async function GET(request: Request) {
         e.description, 
         e.start_time, 
         e.end_time,
-        e.category,
+        e.category_ids, 
         l.name as library_name,
         l.address,
         ST_Distance(
@@ -46,7 +41,26 @@ export async function GET(request: Request) {
       LIMIT 100;
     `;
 
-    return NextResponse.json(events);
+    // Map the raw database row to your frontend LibraryEvent interface
+    const formattedEvents = events.map(event => {
+      const eventDate = new Date(event.start_time);
+      
+      return {
+        id: event.id,
+        title: event.title,
+        libraryName: event.library_name,
+        date: eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        description: event.description || "No description provided.",
+        sourceUrl: "#", 
+        category_ids: event.category_ids || [],
+        // NEW: Add the distance and round it to 1 decimal place
+        distance: Math.round(event.distance_miles * 10) / 10 
+      };
+    });
+
+    return NextResponse.json(formattedEvents);
+
   } catch (error) {
     console.error('Database error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
