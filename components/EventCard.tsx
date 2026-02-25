@@ -25,9 +25,12 @@ export default function EventCard({ event }: { event: LibraryEvent }) {
   
   // Ensures we have an array to map over even if there are no categories
   const categories = event.category_ids || [];
+  
+  // Check if we have a real URL, not just our fallback "#"
+  const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
 
   return (
-    <div className="bg-white rounded-[2rem] border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] hover:-translate-y-1 hover:shadow-[0_8px_0_rgb(241,245,249)] transition-all flex flex-col h-full overflow-hidden text-left relative group">
+    <div className="bg-white rounded-4xl border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] hover:-translate-y-1 hover:shadow-[0_8px_0_rgb(241,245,249)] transition-all flex flex-col h-full overflow-hidden text-left relative group">
       
       {/* Category Badges */}
       <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5 z-10">
@@ -79,15 +82,24 @@ export default function EventCard({ event }: { event: LibraryEvent }) {
           {event.description}
         </p>
 
-        {/* Action Button */}
-        <a 
-          href={event.sourceUrl} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="mt-auto block text-center px-6 py-3 bg-rose-500 text-white font-extrabold text-sm rounded-xl border-b-4 border-rose-700 hover:bg-rose-400 hover:border-rose-600 active:border-b-0 active:translate-y-1 transition-all"
-        >
-          More Info
-        </a>
+        {/* Action Button - Conditionally Rendered */}
+        {hasValidUrl ? (
+          <a 
+            href={event.sourceUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="mt-auto block text-center px-6 py-3 bg-rose-500 text-white font-extrabold text-sm rounded-xl border-b-4 border-rose-700 hover:bg-rose-400 hover:border-rose-600 active:border-b-0 active:translate-y-1 transition-all"
+          >
+            More Info
+          </a>
+        ) : (
+          <div 
+            className="mt-auto block text-center px-6 py-3 bg-slate-200 text-slate-400 font-extrabold text-sm rounded-xl border-b-4 border-slate-300 cursor-not-allowed"
+            title="Registration link not provided"
+          >
+            No Link Available
+          </div>
+        )}
       </div>
     </div>
   );

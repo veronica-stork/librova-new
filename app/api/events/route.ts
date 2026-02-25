@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       description,
       start_time,
       end_time = null, 
-      registration_link = null,
+      event_url = null,
       category_ids = [], 
     } = event;
 
@@ -38,16 +38,16 @@ export async function POST(request: Request) {
 // 6. Insert into PostgreSQL with UPSERT logic
 const result = await sql`
   INSERT INTO events (
-    library_id, title, description, start_time, end_time, registration_link, category_ids
+    library_id, title, description, start_time, end_time, event_url, category_ids
   )
   VALUES (
-    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${registration_link}, ${category_ids}::int[]
+    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, ${category_ids}::int[]
   )
   ON CONFLICT (library_id, title, start_time) 
   DO UPDATE SET 
     category_ids = EXCLUDED.category_ids,
     description = EXCLUDED.description,
-    registration_link = EXCLUDED.registration_link
+    event_url = EXCLUDED.event_url
   RETURNING *;
 `;
 

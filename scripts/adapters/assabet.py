@@ -2,6 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+from urllib.parse import urljoin  # <-- Added for URL resolution
 from typing import Any, List
 
 # Importing the contract classes from the parent directory
@@ -78,10 +79,25 @@ class AssabetAdapter(BaseLibraryScraper):
         now = datetime.now()
         seven_days_later = now + timedelta(days=7)
 
-        event_cards = soup.find_all('div', class_='listing-event')
+        # Note: Depending on Assabet version, class might be listing_event or listing-event
+        event_cards = soup.find_all('div', class_=['listing-event', 'listing_event'])
 
         for card in event_cards:
-            title = card.find('h2').get_text(strip=True) if card.find('h2') else "N/A"
+            event_url = None
+            title = "N/A"
+            
+            # Target specifically the h2 so we get the actual title, not the date/time from the h3
+            h2_tag = card.find('h2')
+            if h2_tag:
+                title = h2_tag.get_text(strip=True)
+                a_tag = h2_tag.find('a', href=True)
+                if a_tag:
+                    # urljoin correctly handles both relative and absolute links
+                    event_url = urljoin(self.target_url, a_tag['href'])
+            # ... the rest of the extraction logic remains exactly the same ...
+            else:
+                title = "N/A"
+
             date_raw = card.find('span', class_='event-day').get_text(strip=True)
             time_raw = card.find('span', class_='event-time').get_text(strip=True)
             desc_elem = card.find('div', class_='event-description-excerpt')
@@ -107,7 +123,8 @@ class AssabetAdapter(BaseLibraryScraper):
                     title=title,
                     start_time=dt_obj,
                     library_id=self.library_id,
-                    description=description
+                    description=description,
+                    event_url=event_url  # <-- Appending the extracted URL here
                 )
                 events.append(event)
                 

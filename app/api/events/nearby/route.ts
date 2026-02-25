@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; 
+
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 
@@ -8,13 +10,19 @@ export async function GET(request: Request) {
   const lng = parseFloat(searchParams.get('lng') || '');
   const radiusMiles = parseFloat(searchParams.get('radius') || '10');
 
+  // Parse categories into an array of numbers (e.g., ?categories=3,8 -> [3, 8])
+  const categoriesParam = searchParams.get('categories');
+  const categoryIds = categoriesParam 
+    ? categoriesParam.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id))
+    : [];
+
   if (isNaN(lat) || isNaN(lng)) {
     return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
   }
 
   const sql = neon(process.env.DATABASE_URL!);
 
-  try {
+try {
     const events = await sql`
       SELECT 
         e.id, 
@@ -22,6 +30,7 @@ export async function GET(request: Request) {
         e.description, 
         e.start_time, 
         e.end_time,
+        e.event_url, -- Added event_url here
         e.category_ids, 
         l.name as library_name,
         l.address,
@@ -37,6 +46,14 @@ export async function GET(request: Request) {
         ${radiusMiles} * 1609.34
       )
       AND e.start_time >= NOW()
+      ${
+        categoryIds.length > 0
+          // If e.category_ids is an array column, use the overlap operator (&&)
+          // If e.category_ids is a single integer column, change this to:
+          // ? sql`AND e.category_ids = ANY(${categoryIds}::int[])`
+          ? sql`AND e.category_ids && ${categoryIds}::int[]`
+          : sql``
+      }
       ORDER BY e.start_time ASC
       LIMIT 100;
     `;
@@ -52,9 +69,8 @@ export async function GET(request: Request) {
         date: eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         time: eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
         description: event.description || "No description provided.",
-        sourceUrl: "#", 
+        sourceUrl: event.event_url || "#", // Mapped the database field to the frontend prop here
         category_ids: event.category_ids || [],
-        // NEW: Add the distance and round it to 1 decimal place
         distance: Math.round(event.distance_miles * 10) / 10 
       };
     });

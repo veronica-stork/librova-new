@@ -11,7 +11,7 @@ class StandardizedEvent:
     description: str = ""
     # Optional fields default to None if the specific calendar doesn't provide them
     end_time: Optional[datetime] = None
-    registration_link: Optional[str] = None
+    event_url: Optional[str] = None
     category_ids: Optional[List[int]] = None
 
     def to_dict(self) -> dict:
