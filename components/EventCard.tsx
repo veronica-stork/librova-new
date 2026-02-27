@@ -18,7 +18,7 @@ export interface LibraryEvent {
   description: string;
   sourceUrl: string;
   category_ids?: number[]; 
-  distance?: number; 
+  distance?: number | null; // TWEAK 1: allow null
 }
 
 export default function EventCard({ event }: { event: LibraryEvent }) {
@@ -70,8 +70,8 @@ export default function EventCard({ event }: { event: LibraryEvent }) {
           </svg>
           <span className="truncate">
             {event.libraryName}
-            {/* Conditionally render the distance if it exists */}
-            {event.distance !== undefined && (
+            {/* TWEAK 2: Conditionally render the distance if it exists and is not null */}
+            {event.distance !== undefined && event.distance !== null && (
               <span className="ml-1 text-teal-600 font-bold">({event.distance} mi)</span>
             )}
           </span>

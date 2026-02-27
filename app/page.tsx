@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import EventCard, { LibraryEvent } from '../components/EventCard'
 
-// The complete, updated taxonomy
 const CATEGORIES = [
   { id: 1, name: 'Storytime' },
   { id: 2, name: 'Crafts' },
@@ -22,54 +21,36 @@ const CATEGORIES = [
   { id: 15, name: 'ESL/Language'}
 ];
 
-// IDs for the buttons we want exposed on wider screens
 const QUICK_FILTER_IDS = [9, 10, 8, 12]; 
 
 export default function LibrovaHome() {
-  const initialEvents: LibraryEvent[] = [
-    {
-      id: "evt_001",
-      title: "Junior Miners: Minecraft Free Play",
-      libraryName: "Tivoli Free Library",
-      date: "Feb 28, 2026",
-      time: "3:30 PM",
-      description: "Calling all Kindergarteners and early elementary builders! Join us for an afternoon of creative mode block-building. Laptops provided, or bring your own device. Space is limited so grab a spot!",
-      sourceUrl: "#",
-      category_ids: [11, 7]
-    },
-    {
-      id: "evt_002",
-      title: "Teen Robotics Workshop",
-      libraryName: "Red Hook Public Library",
-      date: "Mar 2, 2026",
-      time: "4:00 PM",
-      description: "Learn to build and program simple robots using Arduino kits. No prior coding experience required. All materials are provided by the library.",
-      sourceUrl: "#",
-      category_ids: [8,7]
-    },
-    {
-      id: "evt_003",
-      title: "Adult Fiction Book Club",
-      libraryName: "Starr Library",
-      date: "Mar 5, 2026",
-      time: "6:30 PM",
-      description: "This month we are discussing 'The Midnight Library' by Matt Haig. Coffee, tea, and light refreshments will be served in the community room.",
-      sourceUrl: "#",
-      category_ids: [9, 3]
-    }
-  ];
-
-  const [events, setEvents] = useState<LibraryEvent[]>(initialEvents);
-  const [isLoading, setIsLoading] = useState(false);
+  // Start with an empty array instead of dummy data
+  const [events, setEvents] = useState<LibraryEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Default to true for the initial load
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
-  const fetchNearbyEvents = async (lat: number, lng: number, cats: number[] = selectedCategories) => {
+  // Modified to handle optional lat/lng
+  const fetchEvents = async (lat?: number | null, lng?: number | null, cats: number[] = selectedCategories) => {
     setIsLoading(true);
     try {
-      const categoryQuery = cats.length > 0 ? `&categories=${cats.join(',')}` : '';
-      const response = await fetch(`/api/events/nearby?lat=${lat}&lng=${lng}&radius=15${categoryQuery}`);
+      const params = new URLSearchParams();
+      
+      if (lat && lng) {
+        params.append('lat', lat.toString());
+        params.append('lng', lng.toString());
+        params.append('radius', '15'); // You can tie this to your radius select state later
+      }
+      
+      if (cats.length > 0) {
+        params.append('categories', cats.join(','));
+      }
+
+      const queryString = params.toString();
+      const endpoint = `/api/events/nearby${queryString ? `?${queryString}` : ''}`;
+
+      const response = await fetch(endpoint);
       
       if (!response.ok) {
         const errorData = await response.text(); 
@@ -80,12 +61,18 @@ export default function LibrovaHome() {
       const data = await response.json();
       setEvents(data); 
     } catch (error) {
-      console.error("Failed to fetch nearby events:", error);
-      alert("Failed to load local events. Check the console for details.");
+      console.error("Failed to fetch events:", error);
+      alert("Failed to load events. Check the console for details.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Fetch all events on initial mount
+  useEffect(() => {
+    fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLocationClick = () => {
     if (!navigator.geolocation) {
@@ -97,7 +84,7 @@ export default function LibrovaHome() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        fetchNearbyEvents(latitude, longitude);
+        fetchEvents(latitude, longitude); // Refetch with location
       },
       (error) => {
         console.error("Error getting location:", error);
@@ -113,14 +100,13 @@ export default function LibrovaHome() {
       
     setSelectedCategories(updatedCategories);
 
-    if (userLocation) {
-      fetchNearbyEvents(userLocation.lat, userLocation.lng, updatedCategories);
-    }
+    // Fetch immediately with the new categories, applying location if we have it
+    fetchEvents(userLocation?.lat, userLocation?.lng, updatedCategories);
   };
 
   return (
     <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200">
-      
+    
       {/* Navigation Bar */}
       <nav className="bg-white border-b-4 border-teal-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
