@@ -23,6 +23,10 @@ class LibCalAdapter(BaseLibraryScraper):
         """
         Hits the hidden LibCal JSON endpoint for the next 7 days and returns the raw JSON list.
         """
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) LibrovaLibraryScraper/1.0 (veronica.stork@gmail.com)'
+        }
+
         print(f"📡 Fetching LibCal JSON for Library ID {self.library_id}...")
         
         # 1. Dynamically calculate the 7-day date range
@@ -42,7 +46,7 @@ class LibCalAdapter(BaseLibraryScraper):
 
         try:
             # 3. Hit the endpoint and parse the JSON automatically
-            response = requests.get(api_url, params=params)
+            response = requests.get(api_url, params=params, headers=headers)
             response.raise_for_status()
             return response.json() # Returns the raw dictionary/list
         except requests.exceptions.RequestException as e:

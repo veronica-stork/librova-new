@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List
 from models import StandardizedEvent
 from utils.categorization import extract_category_ids
+from utils.filtering import is_public_event
 
 class BaseLibraryScraper(ABC):
     def __init__(self, library_id: int):
@@ -74,6 +75,10 @@ class BaseLibraryScraper(ABC):
         # 3. Augment & Load
         print(f"Found {len(events)} events. Sending to database...")
         for event in events:
+
+            if not is_public_event(event.title, event.description):
+                print(f"🛑 Filtered private booking: {event.title}")
+                continue
             matched_categories = extract_category_ids(event.title, event.description)
             event.category_ids = matched_categories
 

@@ -1,0 +1,1 @@
+the BaseLibraryScraper, how the Orchestrator routes tasks, and how the utils/filtering.py bouncer intercepts private events like "Baby Sprinkles."
