@@ -1,14 +1,12 @@
 import re
 from typing import List
 
-# 1. Map your string keys to the provided database IDs
-# Updated IDs for your DB: 
-# 12-Early Childhood, 13-Tech Help, 14-Special Needs, 15-ESL/Language
 CATEGORY_ID_MAP = {
     "storytime": 1, "crafts": 2, "book_talks": 3, "games": 4, 
     "history": 5, "health": 6, "stem": 7, "teens": 8, 
     "adults": 9, "family": 10, "children": 11,
-    "early_childhood": 12, "tech_help": 13, "special_needs": 14, "esl": 15
+    "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
+    "languages": 15, "music": 16, "money": 17
 }
 
 event_categories = {
@@ -26,7 +24,7 @@ event_categories = {
         "craft", "diy", "make and take", "make & take", "origami", 
         "painting", "knitting", "crochet", "sewing", "scrapbooking", 
         "art", "drawing", "maker", "watercolor", "yarn", "papercraft",
-        "quilter", "quilting", "crafter", "needlework", "embroidery"
+        "quilter", "quilting", "crafter", "needlework", "embroidery", "mixed media", "collage"
     ],
     "stem": [
         "stem", "steam", "coding", "robotics", "lego", "science", 
@@ -37,6 +35,10 @@ event_categories = {
         "tech help", "computer help", "smart phone", "ipad", 
         "tablet", "device advice", "tech tutor", "software help", "digital literacy"
     ],
+    "health": ["nutrition", "diet", "zumba", "pilates", "tai chi", "qigong", "yoga", 
+               "exercise", "self-care", "wellness", "meditation", "mindfulness", "stress", 
+               "mental health", "grief", "alzheimer's", "dementia", "depression", "support group", 
+               "cardio", "strength training", "aerobics", "narcan", "addiction", "cpr", "first aid"],
     "book_talks": [
         "book club", "book discussion", "author visit", "book talk", 
         "author talk", "literature", "reading group", "chapter chat", 
@@ -45,20 +47,30 @@ event_categories = {
     "games": [
         "board game", "video game", "trivia", "bingo", "chess", 
         "mahjong", "mah jong", "d&d", "dungeons and dragons", "scrabble", 
-        "puzzle", "esports", "gaming", "switch", "tabletop"
+        "puzzle", "esports", "gaming", "switch", "tabletop", "wii", "mah jongg",
+        "pokemon", "magic: the gathering"
     ],
     "special_needs": [
         "all abilities", "sensory-friendly", "adaptive", "special needs", 
         "inclusive", "neurodiversity", "neurodivergent"
     ],
-    "esl": [
+    "languages": [
         "esl", "english as a second language", "ell", "english learners", 
         "language learning", "conversation group", "french", "spanish", "italian"
     ],
     "teens": ["teen", "youth", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "adults only", "retirement", "medicare"],
     "children": ["kid", "child", "baby", "babies", "elementary", "tween", "grades k-5"],
-    "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"]
+    "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"],
+    "music": ["music", "concert", "performance", "recital", "symphony", "gig", "acoustic", "band", 
+              "choir", "ensemble", "live music", "ukulele", "guitar", "piano", "drums", "fiddle", "violin", 
+              "strings", "percussion", "orchestra", "brass", "woodwind", "jam session", "sing-along", "karaoke", 
+              "open mic", "musical theater", "opera", "songwriting", "chorus"],
+    "money": ["money", "budgeting", "savings", "debt", "credit score", "investing", "retirement", "401k", 
+              "ira", "personal finance", "wealth", "financial planning", "tax prep", "aarp tax-aide", 
+              "vita", "irs", "tax filing", "property tax", "tax exemptions", "income tax", "power of attorney", 
+              "estate planning", "wills", "trusts", "probate", "social security", "medicare", "insurance",
+              "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"]
 }
 
 COMPILED_RULES = {}

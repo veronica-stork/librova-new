@@ -18,7 +18,9 @@ const CATEGORIES = [
   { id: 12, name: 'Early Childhood'},
   { id: 13, name: 'Tech Help'},
   { id: 14, name: 'Special Needs'},
-  { id: 15, name: 'ESL/Language'}
+  { id: 15, name: 'ESL/Language'},
+  { id: 16, name: 'Music'},
+  { id: 17, name: 'Money'}
 ];
 
 const QUICK_FILTER_IDS = [9, 10, 8, 12]; 
