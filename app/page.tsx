@@ -252,7 +252,7 @@ export default function LibrovaHome() {
                             <button 
                               onClick={() => {
                                 setSelectedCategories([]);
-                                if (userLocation) fetchNearbyEvents(userLocation.lat, userLocation.lng, []);
+                                if (userLocation) fetchEvents(userLocation.lat, userLocation.lng, []);
                               }}
                               className="w-full text-sm font-bold text-rose-600 hover:text-rose-700 py-1"
                             >

@@ -8,7 +8,10 @@ EXCLUSION_KEYWORDS = [
     "birthday party",
     "private meeting",
     "staff only",
-    "closed for"
+    "closed for",
+    "cancelled",
+    "canceled",
+    "postponed"
 ]
 
 def is_public_event(title: str, description: str) -> bool:
