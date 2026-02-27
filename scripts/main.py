@@ -5,17 +5,18 @@ from dotenv import load_dotenv
 
 from utils.db_cleanup import prune_past_events
 from adapters.assabet import AssabetAdapter
+from adapters.libcal import LibCalAdapter  
 
 def fetch_libraries_from_db():
-    """Fetches all library records from the PostgreSQL database."""
-    conn_string = os.getenv('DATABASE_URL') # Ensure this is in your .env.local
+    """Fetches all library records and their configurations from the PostgreSQL database."""
+    conn_string = os.getenv('DATABASE_URL')
     libraries = []
     
     try:
-        # Using RealDictCursor allows us to access columns by name like lib['calendar_type']
+        # psycopg2 automatically converts the JSONB column into a Python dictionary
         with psycopg2.connect(conn_string, cursor_factory=RealDictCursor) as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id, name, calendar_type, calendar_url FROM libraries;")
+                cur.execute("SELECT id, name, scraper_config FROM libraries;")
                 libraries = cur.fetchall()
     except Exception as e:
         print(f"❌ Database Error: Could not fetch libraries. {e}")
@@ -41,32 +42,50 @@ def main():
     # 4. Route and run the appropriate adapters
     for lib in libraries:
         lib_name = lib['name']
-        lib_type = lib['calendar_type']
         lib_id = lib['id']
-        lib_url = lib['calendar_url']
+        
+        # Default to an empty dictionary if scraper_config is completely null
+        config = lib.get('scraper_config') or {} 
+        platform = config.get('platform')
 
         print(f"\n{'='*50}")
         print(f"📅 Processing: {lib_name}")
-        print(f"Type: {lib_type or 'None'} | ID: {lib_id}")
+        print(f"Platform: {platform or 'None'} | ID: {lib_id}")
         print(f"{'='*50}")
         
-        # Guard clause for missing URLs or types
-        if not lib_type or not lib_url:
-            print(f"⏭️ Skipping {lib_name}: Missing calendar_type or calendar_url.")
+        # Guard clause for missing configuration
+        if not platform:
+            print(f"⏭️ Skipping {lib_name}: No platform defined in scraper_config.")
             continue
+        
+        scraper = None
 
-        if lib_type == "assabet":
-            try:
-                scraper = AssabetAdapter(library_id=lib_id, target_url=lib_url)
-                scraper.run()
-            except Exception as e:
-                print(f"❌ Error running AssabetAdapter for {lib_name}: {e}")
-            
-        elif lib_type in ["libcal", "google"]:
-            print(f"⌛ Adapter for '{lib_type}' is not yet implemented. Skipping.")
-            
-        else:
-            print(f"⚠️ Warning: Unknown calendar type '{lib_type}' for {lib_name}. Skipping.")
+        # --- THE ADAPTER ROUTER ---
+        try:
+            if platform == "assabet":
+                # Pull Assabet-specific variables from the config dict
+                scraper = AssabetAdapter(
+                    library_id=lib_id, 
+                    target_url=config.get('base_url')
+                )
+                
+            elif platform == "libcal":
+                
+                scraper = LibCalAdapter(
+                    library_id = lib_id, 
+                    config = config
+                )
+ 
+            elif platform == "google":
+                print(f"⌛ Adapter for 'google' is not yet implemented. Skipping.")
+                
+            else:
+                print(f"⚠️ Warning: Unknown platform '{platform}' for {lib_name}. Skipping.")
+
+            if scraper:
+                scraper.run()    
+        except Exception as e:
+            print(f"❌ Error running {platform} adapter for {lib_name}: {e}")
 
     print("\n✅ All scheduled scraping tasks completed.")
 

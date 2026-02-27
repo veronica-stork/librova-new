@@ -14,6 +14,9 @@ class AssabetAdapter(BaseLibraryScraper):
     Adapter for scraping Assabet Interactive library calendars.
     Inherits from BaseLibraryScraper.
     """
+    def __init__(self, library_id: int, target_url: str):
+        super().__init__(library_id)
+        self.target_url = target_url
 
     def fetch_data(self) -> Any:
         """

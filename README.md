@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Librova
+## Library event aggregator app
 
-## Getting Started
+### 1. Overview
 
-First, run the development server:
+**Project Title:** Librova 
+**Mission Statement:** A one-sentence explanation of the "why" (e.g., "Bridging the gap between local libraries and community discovery through automated event aggregation.") 
+**The Problem:** Briefly describe the "Manual Input Gap" we discussed—how current platforms require libraries to re-enter data, leading to "data rot." 
+**The Solution:** Explain how Librova uses automated "Adapters" to ensure a 100% accurate, zero-friction source of truth.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 2. Development Methodology: AI-Augmented Engineering
+What to say: Focus on the "Human-in-the-loop" aspect.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This project was developed using a "Human-in-the-loop" AI orchestration model. While AI (specifically Gemini and LLM-assisted coding) was used to accelerate the generation of boilerplate and initial adapter logic, all architectural decisions, database schema design (PostGIS), and edge-case resolution (such as complex HTML hierarchy bugs) were manually architected and audited. This approach allowed for rapid prototyping while maintaining high standards for data integrity and system security.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. The Technical Stack 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Frontend:** Next.js (App Router), Tailwind CSS. 
+**Backend/API:** Next.js Serverless Functions, Python (for the scraping engine). 
+**Database:** PostgreSQL with PostGIS for spatial queries, hosted on Neon. 
+**Deployment:** Vercel.
 
-## Learn More
+### 4. Architecture & Data Flow
 
-To learn more about Next.js, take a look at the following resources:
+This is where you show off the "Content Engineer" side of your brain.
+**The Adapter Factory:** Explain the modular Python system. How a BaseScraper class allows for quick deployment of new library systems (Assabet, LibCal, etc.).
+**Spatial Logic:** Mention how you use ST_DWithin to calculate real-time distance from user coordinates.
+**Categorization Engine:** Describe the heuristic keyword-mapping system that automatically tags events for the UI.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+graph TD
+    subgraph "External Sources"
+        A[Assabet Calendars]
+        B[LibCal Systems]
+        C[WordPress/Custom HTML]
+    end
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    subgraph "Scraper Engine (Python)"
+        D[Base Scraper Class]
+        E[Adapter Factory]
+        F[Keyword Heuristics Engine]
+    end
 
-## Deploy on Vercel
+    subgraph "Database (Neon/PostgreSQL)"
+        G[(PostGIS Spatial DB)]
+    end
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    subgraph "Application (Next.js)"
+        H[Serverless API Routes]
+        I[React Frontend UI]
+    end
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    A & B & C --> E
+    E --> D
+    D --> F
+    F -- "UPSERT Logic" --> G
+    G <--> H
+    H <--> I
+
+### 5. The "Keith" Section (Operational Guide) 
+Even if you don't call it "The Keith Section" in the public README, this is the Staff Documentation.Adding a New Library: A 3-step bulleted list on how to create a new adapter.Monitoring Health: Instructions on how to check if a scraper has failed due to an HTML change.Manual Overrides: How to handle those edge cases (like the Red Hook $H3$ vs $H2$ bug).
+
+### 6. Roadmap 
+- Search & Discovery: Zip code geocoding and radius sliders.
+- Operational Scalability: Moving keywords to the database.
+- Monetization: Community Partner tiers and "Featured" placements.
+
+### 7. Local Impact 
+(The "Why")Mention the Mid-Hudson Library System specifically.Highlight the goal of supporting the 66 libraries across Dutchess, Ulster, Columbia, Greene, and Putnam counties.

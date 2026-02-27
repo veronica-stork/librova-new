@@ -6,9 +6,8 @@ from models import StandardizedEvent
 from utils.categorization import extract_category_ids
 
 class BaseLibraryScraper(ABC):
-    def __init__(self, library_id: int, target_url: str):
+    def __init__(self, library_id: int):
         self.library_id = library_id
-        self.target_url = target_url
         self.api_key = os.getenv("SCRAPER_API_KEY")
         self.api_url = os.getenv("API_URL", "http://localhost:3000/api/events")
 
