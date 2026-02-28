@@ -27,3 +27,6 @@ Library staff frequently use public calendar software to manage internal facilit
 
 * **Implementation:** `utils/filtering.py` contains an interceptor that scans incoming events before database insertion.
 * **Exclusion Criteria:** Events matching structural keywords like `(comm)`, `Room Reservation`, `Staff Only`, or private social gatherings (`Baby Sprinkle`) are dropped from the pipeline to preserve the integrity of the public-facing UI.
+
+
+Implicit Period Inference: Many Assabet entries omit the AM/PM marker on the start time (e.g., 1:00 — 3:00 PM). The BaseLibraryScraper now performs a "look-ahead" on the full time string to infer the correct period for the start time, preventing afternoon events from being incorrectly timestamped as early morning (1:00 AM).

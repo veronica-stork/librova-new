@@ -27,6 +27,7 @@ This is where you show off the "Content Engineer" side of your brain.
 **Spatial Logic:** Mention how you use ST_DWithin to calculate real-time distance from user coordinates.
 **Categorization Engine:** Describe the heuristic keyword-mapping system that automatically tags events for the UI.
 
+```mermaid
 graph TD
     subgraph "External Sources"
         A[Assabet Calendars]
@@ -55,6 +56,7 @@ graph TD
     F -- "UPSERT Logic" --> G
     G <--> H
     H <--> I
+```
 
 ### 5. The "Keith" Section (Operational Guide) 
 Even if you don't call it "The Keith Section" in the public README, this is the Staff Documentation.Adding a New Library: A 3-step bulleted list on how to create a new adapter.Monitoring Health: Instructions on how to check if a scraper has failed due to an HTML change.Manual Overrides: How to handle those edge cases (like the Red Hook $H3$ vs $H2$ bug).

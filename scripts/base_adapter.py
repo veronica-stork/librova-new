@@ -1,87 +1,192 @@
-import os
-import requests
-from abc import ABC, abstractmethod
-from typing import Any, List
-from models import StandardizedEvent
+from datetime import datetime
+from typing import Optional, List, Any
 from utils.categorization import extract_category_ids
 from utils.filtering import is_public_event
 
-class BaseLibraryScraper(ABC):
+class BaseLibraryScraper:
+
     def __init__(self, library_id: int):
         self.library_id = library_id
-        self.api_key = os.getenv("SCRAPER_API_KEY")
-        self.api_url = os.getenv("API_URL", "http://localhost:3000/api/events")
 
-    @abstractmethod
-    def fetch_data(self) -> Any:
+    def run(self) -> List[Any]:
         """
-        Fetch raw data from the library's calendar (HTML, JSON, XML, etc.).
-        Must be implemented by subclasses.
+        The standard execution flow for ALL adapters.
+        1. Fetch raw data
+        2. Normalize into StandardizedEvents
+        3. Filter out private/cancelled events (the Bouncer)
+        4. Inject category tags
         """
-        pass
 
-    @abstractmethod
-    def normalize_data(self, raw_data: Any) -> List[StandardizedEvent]:
-        """
-        Parse and clean raw data into a list of StandardizedEvent objects.
-        Must be implemented by subclasses.
-        """
-        pass
-
-    def send_to_database(self, event: StandardizedEvent) -> None:
-        """
-        Standardized method to POST an event to the Next.js API.
-        Inherited by all child scrapers.
-        """
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-
-        try:
-            response = requests.post(self.api_url, json=event.to_dict(), headers=headers, timeout=10)
-            
-            if response.status_code == 201:
-                result = response.json()
-                if result.get("inserted"):
-                    print(f"✅ Successfully inserted: {event.title}")
-                else:
-                    print(f"⚠️ Skipped duplicate: {event.title}")
-            else:
-                print(f"❌ Failed to insert {event.title}: Status {response.status_code} - {response.text}")
-                
-        except requests.exceptions.RequestException as e:
-            print(f"Network error while sending {event.title}: {e}")
-
-    def run(self) -> None:
-        """
-        The main execution pipeline. Orchestrates the fetching, normalizing, 
-        and database insertion process. 
-        """
-        print(f"🚀 Starting scraper for Library ID: {self.library_id} at {self.target_url}")
-        
-        # 1. Fetch
         raw_data = self.fetch_data()
         if not raw_data:
-            print("No data fetched. Exiting.")
-            return
+            print(f"⚠️ No data fetched for library {self.library_id}")
+            return []
+        standardized_events = self.normalize_data(raw_data)
 
-        # 2. Normalize
-        events = self.normalize_data(raw_data)
-        if not events:
-            print("No valid events parsed within the timeframe. Exiting.")
-            return
-
-        # 3. Augment & Load
-        print(f"Found {len(events)} events. Sending to database...")
-        for event in events:
-
+        for event in standardized_events:
             if not is_public_event(event.title, event.description):
-                print(f"🛑 Filtered private booking: {event.title}")
+                # If it returns False, we just skip to the next event
+                print(f"🚫 Blocked: {event.title}") # Optional: uncomment to see it working!
                 continue
-            matched_categories = extract_category_ids(event.title, event.description)
-            event.category_ids = matched_categories
-
-            self.send_to_database(event)
             
-        print("🏁 Scraping completed.\n")
+            # Auto-tag every event right before it leaves the factory
+            event.category_ids = extract_category_ids(event.title, event.description)
+
+        print(f"✅ Successfully processed and tagged {len(standardized_events)} events for library {self.library_id}")
+        return standardized_events
+
+    def parse_datetime(self, date_val: str, time_val: Optional[str] = None, is_all_day: bool = False) -> Optional[datetime]:
+
+        """
+
+        Polymorphic date parser for Librova.
+
+        Handles ISO strings (LibCal) and human-readable HTML strings (Assabet).
+
+        """
+
+        if not date_val:
+
+            return None
+
+
+
+        # --- 1. ISO / LibCal Logic ---
+
+        if "T" in str(date_val) or is_all_day:
+
+            try:
+
+                clean_date = str(date_val).split('T')[0]
+
+                return datetime.fromisoformat(f"{clean_date}T00:00:00")
+
+            except ValueError:
+
+                pass
+
+
+
+        # --- 2. String-Based / Assabet Logic ---
+
+        if time_val:
+
+            time_clean = time_val.lower().strip()
+
+           
+
+            # ⛔ Skip actual closures
+
+            if "closed" in time_clean:
+
+                return None
+
+
+
+            # ✅ Catch "All Day" events
+
+            if "all day" in time_clean:
+
+                try:
+
+                    now = datetime.now()
+
+                    year = now.year
+
+                    month_part = date_val.split(',')[1].strip().split(' ')[0]
+
+                    event_month = datetime.strptime(month_part[:3], "%b").month
+
+                   
+
+                    if now.month == 12 and event_month == 1:
+
+                        year += 1
+
+                   
+
+                    date_only_str = f"{date_val} {year}"
+
+                    fmt = "%A, %B %d %Y" if len(month_part) > 3 else "%a, %b %d %Y"
+
+                    return datetime.strptime(date_only_str, fmt)
+
+                except Exception:
+
+                    return None
+
+
+
+            # 🕒 Standard time parsing logic
+
+            try:
+
+                # 1. Split the range safely (handles both '—' and '-')
+
+                if '—' in time_val:
+
+                    start_time = time_val.split('—')[0].strip()
+
+                elif '-' in time_val:
+
+                    start_time = time_val.split('-')[0].strip()
+
+                else:
+
+                    start_time = time_val.strip()
+
+
+
+                # 2. Smart Period Inference (The Red Hook "Math Help" Fix)
+
+                start_time_upper = start_time.upper()
+
+                if "AM" not in start_time_upper and "PM" not in start_time_upper:
+
+                    if "PM" in time_val.upper():
+
+                        start_time = f"{start_time} PM"
+
+                    elif "AM" in time_val.upper():
+
+                        start_time = f"{start_time} AM"
+
+
+
+                # 3. Handle Year Rollover
+
+                now = datetime.now()
+
+                year = now.year
+
+                month_part = date_val.split(',')[1].strip().split(' ')[0]
+
+                event_month = datetime.strptime(month_part[:3], "%b").month
+
+               
+
+                if now.month == 12 and event_month == 1:
+
+                    year += 1
+
+
+
+                # 4. Construct and Parse
+
+                full_date_str = f"{date_val} {year} {start_time}"
+
+                fmt = "%A, %B %d %Y %I:%M %p" if len(month_part) > 3 else "%a, %b %d %Y %I:%M %p"
+
+                return datetime.strptime(full_date_str, fmt)
+
+           
+
+            except (ValueError, IndexError, AttributeError) as e:
+
+                print(f"⚠️ Polymorphic Parse Error for '{date_val}' / '{time_val}': {e}")
+
+                return None
+
+
+
+        return None

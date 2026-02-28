@@ -94,9 +94,12 @@ for category, keywords in event_categories.items():
     pattern = r'(?<!\w)(?:' + '|'.join(processed_patterns) + r')(?!\w)'
     COMPILED_RULES[category] = re.compile(pattern, re.IGNORECASE)
 
+HIERARCHY_RULES = {
+    1: [2, 11, 12, 16] # Storytime consumes: Crafts, Children, Early Childhood, Music
+}
+
 def extract_category_ids(title: str, description: str) -> list[int]:
-    # Normalize text: convert to lowercase and remove some common noise
-    # We keep the text mostly intact so the regex boundaries still work
+    """Scans text for keywords and returns a deduplicated list of category IDs."""
     text_to_search = f"{title or ''} {description or ''}".lower()
     
     matched_ids = set()
@@ -104,7 +107,17 @@ def extract_category_ids(title: str, description: str) -> list[int]:
         if pattern.search(text_to_search):
             matched_ids.add(CATEGORY_ID_MAP[category])
             
-    return list(matched_ids)
+    # --- The Deduplicator Logic ---
+    ids_to_remove = set()
+    for matched_id in matched_ids:
+        # If a high-value category was found, mark its children for removal
+        if matched_id in HIERARCHY_RULES:
+            ids_to_remove.update(HIERARCHY_RULES[matched_id])
+            
+    # Subtract the children from the final list
+    final_ids = matched_ids - ids_to_remove
+            
+    return list(final_ids)
 # --- Example Usage ---
 if __name__ == "__main__":
     sample_title = "Intro to Python for Middle Schoolers"

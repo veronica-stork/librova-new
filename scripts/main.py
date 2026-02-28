@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import requests 
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
@@ -39,6 +40,14 @@ def main():
         print("⚠️ No libraries found in database. Exiting.")
         return
 
+    # Setup API configuration
+    API_URL = os.getenv('NEXT_PUBLIC_API_URL', 'http://localhost:3000') + '/api/events'
+    API_KEY = os.getenv('SCRAPER_API_KEY')
+    HEADERS = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+
     # 4. Route and run the appropriate adapters
     for lib in libraries:
         lib_name = lib['name']
@@ -70,20 +79,41 @@ def main():
                 )
                 
             elif platform == "libcal":
-                
                 scraper = LibCalAdapter(
-                    library_id = lib_id, 
-                    config = config
+                    library_id=lib_id, 
+                    config=config
                 )
- 
+
             elif platform == "google":
                 print(f"⌛ Adapter for 'google' is not yet implemented. Skipping.")
                 
             else:
                 print(f"⚠️ Warning: Unknown platform '{platform}' for {lib_name}. Skipping.")
 
+            # --- API POST LOGIC ---
             if scraper:
-                scraper.run()    
+                events = scraper.run()    
+                
+                if events:
+                    print(f"🚀 Pushing {len(events)} events to the database via API...")
+                    success_count = 0
+                    
+                    for event in events:
+                        # Convert using the model's built-in timezone-aware method
+                        event_payload = event.to_dict()
+
+                        # Send it to Next.js!
+                        try:
+                            response = requests.post(API_URL, json=event_payload, headers=HEADERS)
+                            if response.status_code == 201:
+                                success_count += 1
+                            else:
+                                print(f"⚠️ API Error for '{event.title}': {response.status_code} - {response.text}")
+                        except Exception as req_err:
+                            print(f"❌ Connection Error for '{event.title}': {req_err}")
+                            
+                    print(f"✅ Successfully inserted {success_count}/{len(events)} events for {lib_name}.")
+
         except Exception as e:
             print(f"❌ Error running {platform} adapter for {lib_name}: {e}")
 
