@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Optional, List, Any
 from utils.categorization import extract_category_ids
@@ -120,73 +121,53 @@ class BaseLibraryScraper:
             # 🕒 Standard time parsing logic
 
             try:
+                # 1. Split the range safely using regex to catch ALL dashes (hyphen, en-dash, em-dash)
+                start_time = re.split(r'[-–—]', time_val)[0].strip()
 
-                # 1. Split the range safely (handles both '—' and '-')
-
-                if '—' in time_val:
-
-                    start_time = time_val.split('—')[0].strip()
-
-                elif '-' in time_val:
-
-                    start_time = time_val.split('-')[0].strip()
-
-                else:
-
-                    start_time = time_val.strip()
-
-
-
-                # 2. Smart Period Inference (The Red Hook "Math Help" Fix)
-
-                start_time_upper = start_time.upper()
+                # 2. Smart Period Inference (The Bulletproof Version)
+                # Remove periods so "p.m." becomes "PM"
+                time_clean_upper = time_val.upper().replace('.', '')
+                start_time_upper = start_time.upper().replace('.', '')
 
                 if "AM" not in start_time_upper and "PM" not in start_time_upper:
-
-                    if "PM" in time_val.upper():
-
+                    if "PM" in time_clean_upper:
                         start_time = f"{start_time} PM"
-
-                    elif "AM" in time_val.upper():
-
+                    elif "AM" in time_clean_upper:
                         start_time = f"{start_time} AM"
+                    else:
+                        # 3. The "Library Hours" Fallback
+                        # If there is NO indicator at all, guess based on the hour.
+                        try:
+                            hour = int(start_time.split(':')[0])
+                            # Libraries don't do events from 1 AM - 7 AM. 
+                            if hour < 8 or hour == 12:
+                                start_time = f"{start_time} PM"
+                            else:
+                                start_time = f"{start_time} AM"
+                        except Exception:
+                            start_time = f"{start_time} AM"
 
-
-
-                # 3. Handle Year Rollover
+                # 4. Handle Year Rollover
 
                 now = datetime.now()
-
                 year = now.year
-
                 month_part = date_val.split(',')[1].strip().split(' ')[0]
-
                 event_month = datetime.strptime(month_part[:3], "%b").month
-
-               
 
                 if now.month == 12 and event_month == 1:
 
                     year += 1
 
-
-
-                # 4. Construct and Parse
+                # 5. Construct and Parse
 
                 full_date_str = f"{date_val} {year} {start_time}"
 
                 fmt = "%A, %B %d %Y %I:%M %p" if len(month_part) > 3 else "%a, %b %d %Y %I:%M %p"
-
                 return datetime.strptime(full_date_str, fmt)
 
            
 
             except (ValueError, IndexError, AttributeError) as e:
-
                 print(f"⚠️ Polymorphic Parse Error for '{date_val}' / '{time_val}': {e}")
-
                 return None
-
-
-
         return None

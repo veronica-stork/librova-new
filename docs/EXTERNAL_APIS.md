@@ -30,3 +30,5 @@ Library staff frequently use public calendar software to manage internal facilit
 
 
 Implicit Period Inference: Many Assabet entries omit the AM/PM marker on the start time (e.g., 1:00 — 3:00 PM). The BaseLibraryScraper now performs a "look-ahead" on the full time string to infer the correct period for the start time, preventing afternoon events from being incorrectly timestamped as early morning (1:00 AM).
+
+Had to update Assabet adapter to check if close to end of the month and fetch the next month because otherwise it was only fetching events from current month (so on Feb 28th, only one day of events was showing.)
