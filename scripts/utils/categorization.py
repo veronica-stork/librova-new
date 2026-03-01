@@ -13,8 +13,8 @@ event_categories = {
     "storytime": [
         "storytime", "story time", "story-time", "read aloud", "read-aloud", 
         "toddler time", "rhymes", "nursery rhymes", "bilingual storytime", 
-        "read to", "tales", "lapsit", "bedtime story", "wiggles", "words",
-        "fingerplay", "tunes", "songs", "mother goose"
+        "read to", "tales", "lapsit", "bedtime story", "wiggles",
+        "fingerplay", "mother goose"
     ],
     "early_childhood": [
         "twos", "threes", "two-year-olds", "three-year-olds", "pre-k", 
@@ -23,13 +23,13 @@ event_categories = {
     "crafts": [
         "craft", "diy", "make and take", "make & take", "origami", 
         "painting", "knitting", "crochet", "sewing", "scrapbooking", 
-        "art", "drawing", "maker", "watercolor", "yarn", "papercraft",
+        "drawing", "maker", "watercolor", "yarn", "papercraft",
         "quilter", "quilting", "crafter", "needlework", "embroidery", "mixed media", "collage"
     ],
     "stem": [
         "stem", "steam", "coding", "robotics", "lego", "science", 
         "math", "experiment", "engineering", "technology", "3d printing", 
-        "python", "physics", "astronomy", "space", "computer science", "minecraft"
+        "python", "physics", "astronomy", "outer space", "computer science", "minecraft"
     ],
     "tech_help": [
         "tech help", "computer help", "smart phone", "ipad", 
@@ -56,13 +56,15 @@ event_categories = {
     ],
     "languages": [
         "esl", "english as a second language", "ell", "english learners", 
-        "language learning", "conversation group", "french", "spanish", "italian"
+        "language learning", "conversation group", "learn french", "learn spanish", "learn german",
+        "learn chinese", "learn portuguese", "learn italian", "practice spanish", "practice italian",
+        "practice german", "practice chinese", "practice portuguese", "practice french"
     ],
     "teens": ["teen", "youth", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "adults only", "retirement", "medicare"],
     "children": ["kid", "child", "baby", "babies", "elementary", "tween", "grades k-5"],
     "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"],
-    "music": ["music", "concert", "performance", "recital", "symphony", "gig", "acoustic", "band", 
+    "music": ["music", "concert", "performance", "recital", "symphony", "gig", "acoustic", "band", "instruments",
               "choir", "ensemble", "live music", "ukulele", "guitar", "piano", "drums", "fiddle", "violin", 
               "strings", "percussion", "orchestra", "brass", "woodwind", "jam session", "sing-along", "karaoke", 
               "open mic", "musical theater", "opera", "songwriting", "chorus"],
@@ -95,13 +97,28 @@ for category, keywords in event_categories.items():
     COMPILED_RULES[category] = re.compile(pattern, re.IGNORECASE)
 
 HIERARCHY_RULES = {
-    1: [2, 11, 12, 16] # Storytime consumes: Crafts, Children, Early Childhood, Music
+    1: [2, 16], # Storytime consumes: Crafts, Music
+    12: [11] # Early childhood consumes: Children
 }
 
 def extract_category_ids(title: str, description: str) -> list[int]:
     """Scans text for keywords and returns a deduplicated list of category IDs."""
     text_to_search = f"{title or ''} {description or ''}".lower()
     
+# --- 🧽 THE CONTEXT SCRUBBER ---
+    # Erase phrases where "art" means a practice/skill, not a craft.
+    # By replacing them with a space, the regex engine will never even see the word "art" here.
+    false_positive_phrases = [
+        "the art of", 
+        "martial art", 
+        "martial arts", 
+        "state of the art"
+    ]
+
+    for phrase in false_positive_phrases:
+        text_to_search = text_to_search.replace(phrase, " ")   
+    
+    # --- REGEX SCANNING ---
     matched_ids = set()
     for category, pattern in COMPILED_RULES.items():
         if pattern.search(text_to_search):

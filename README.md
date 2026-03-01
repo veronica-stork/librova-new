@@ -17,12 +17,12 @@ Librova uses automated library calendar adapters to pull event data from dispara
 
 ### 2. The Technical Stack 
 
-**Frontend:** Next.js, Tailwind CSS  
-**Backend/API:** Next.js Serverless Functions 
-**Scraping Engine:** Python (runs via GitHub Actions cron; posts to database through Next.js API routes) 
-**Database:** PostgreSQL with PostGIS for spatial queries, hosted on Neon 
-**Automation:** GitHub Actions cron job triggers daily calendar sync 
-**CI/CD & Deployment:** GitHub → Vercel (automatic deploys on push to main)
+**Frontend:** Next.js, Tailwind CSS    
+**Backend/API:** Next.js Serverless Functions  
+**Scraping Engine:** Python (runs via GitHub Actions cron; posts to database through Next.js API routes)  
+**Database:** PostgreSQL with PostGIS for spatial queries, hosted on Neon  
+**Automation:** GitHub Actions cron job triggers daily calendar sync  
+**CI/CD & Deployment:** GitHub → Vercel (automatic deploys on push to main)  
 **Development Approach:** Human-in-the-loop AI-assisted development (Gemini). Architecture, schema design, and edge-case debugging are manual; AI accelerated boilerplate and initial adapter scaffolding.
 
 
