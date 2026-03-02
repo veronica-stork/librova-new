@@ -37,10 +37,10 @@ export async function GET(request: Request) {
         SELECT 
           e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
           l.name as library_name, l.address,
-          ST_Distance(l.location, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography) / 1609.34 as distance_miles
+          ST_Distance(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography) / 1609.34 as distance_miles
         FROM events e
         JOIN libraries l ON e.library_id = l.id
-        WHERE ST_DWithin(l.location, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography, ${radiusMiles} * 1609.34)
+        WHERE ST_DWithin(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography, ${radiusMiles} * 1609.34)
         AND e.start_time >= NOW()
         ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
         ORDER BY e.start_time ASC

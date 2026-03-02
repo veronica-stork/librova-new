@@ -26,15 +26,20 @@ const CATEGORIES = [
 const QUICK_FILTER_IDS = [9, 10, 8, 12]; 
 
 export default function LibrovaHome() {
-  // Start with an empty array instead of dummy data
   const [events, setEvents] = useState<LibraryEvent[]>([]);
-  const [isLoading, setIsLoading] = useState(true); // Default to true for the initial load
+  const [isLoading, setIsLoading] = useState(true); 
   const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [radius, setRadius] = useState(15);
 
-  // Modified to handle optional lat/lng
-  const fetchEvents = async (lat?: number | null, lng?: number | null, cats: number[] = selectedCategories) => {
+  // Updated to accept currentRadius to bypass React's async state batching
+  const fetchEvents = async (
+    lat?: number | null, 
+    lng?: number | null, 
+    cats: number[] = selectedCategories,
+    currentRadius: number = radius 
+  ) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
@@ -42,7 +47,7 @@ export default function LibrovaHome() {
       if (lat && lng) {
         params.append('lat', lat.toString());
         params.append('lng', lng.toString());
-        params.append('radius', '15'); // You can tie this to your radius select state later
+        params.append('radius', currentRadius.toString());
       }
       
       if (cats.length > 0) {
@@ -70,7 +75,24 @@ export default function LibrovaHome() {
     }
   };
 
-  // Fetch all events on initial mount
+  // Fires when radius dropdown changes
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newRadius = parseInt(e.target.value, 10);
+    setRadius(newRadius);
+    
+    // Only fetch if we already have the user's location to filter around
+    if (userLocation?.lat && userLocation?.lng) {
+      fetchEvents(userLocation.lat, userLocation.lng, selectedCategories, newRadius);
+    }
+  };
+
+  // Function to reset location
+  const resetLocation = () => {
+  setUserLocation(null);
+  // Fetch with null lat/lng to get the global feed
+  fetchEvents(null, null, selectedCategories);
+};
+
   useEffect(() => {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,7 +108,7 @@ export default function LibrovaHome() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        fetchEvents(latitude, longitude); // Refetch with location
+        fetchEvents(latitude, longitude); 
       },
       (error) => {
         console.error("Error getting location:", error);
@@ -101,14 +123,11 @@ export default function LibrovaHome() {
       : [...selectedCategories, categoryId];
       
     setSelectedCategories(updatedCategories);
-
-    // Fetch immediately with the new categories, applying location if we have it
     fetchEvents(userLocation?.lat, userLocation?.lng, updatedCategories);
   };
 
   return (
     <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200">
-    
       {/* Navigation Bar */}
       <nav className="bg-white border-b-4 border-teal-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -133,7 +152,6 @@ export default function LibrovaHome() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        
         <section className="bg-teal-500 rounded-[2rem] shadow-[0_8px_0_rgb(15,118,110)] border-4 border-teal-700 p-8 md:p-12 mb-14 relative overflow-visible">
           <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-400 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
 
@@ -177,6 +195,18 @@ export default function LibrovaHome() {
                   </>
                 )}
               </button>
+                {/* NEW: Clear Location Button */}
+    {/* {userLocation && (
+      <button 
+        onClick={resetLocation}
+        className="px-4 py-4 bg-rose-100 text-rose-700 font-bold rounded-2xl border-b-4 border-rose-300 hover:bg-rose-200 active:border-b-0 active:translate-y-1 transition-all"
+        title="Clear location filter"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    )} */}
             </div>
 
             {/* Filters Section */}
@@ -185,7 +215,12 @@ export default function LibrovaHome() {
                 
                 <div className="flex items-center space-x-3 w-full lg:w-auto bg-teal-600 p-2 rounded-xl shrink-0">
                   <label className="text-sm font-bold text-teal-50 whitespace-nowrap px-2">Radius:</label>
-                  <select className="bg-white border-2 border-teal-700 text-slate-800 text-sm font-bold rounded-lg focus:ring-0 outline-none block py-2 px-3 cursor-pointer">
+                  {/* WIRED UP THE SELECT TAG HERE */}
+                  <select 
+                    value={radius}
+                    onChange={handleRadiusChange}
+                    className="bg-white border-2 border-teal-700 text-slate-800 text-sm font-bold rounded-lg focus:ring-0 outline-none block py-2 px-3 cursor-pointer"
+                  >
                     <option value="10">Within 10 miles</option>
                     <option value="15">Within 15 miles</option>
                     <option value="25">Within 25 miles</option>
@@ -195,7 +230,7 @@ export default function LibrovaHome() {
                 {/* Categories Wrapper */}
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
                   
-                  {/* Quick Filters (Hidden on Mobile/Small, visible on Large viewports) */}
+                  {/* Quick Filters */}
                   <div className="hidden lg:flex items-center gap-2">
                     {QUICK_FILTER_IDS.map((id) => {
                       const category = CATEGORIES.find(c => c.id === id);

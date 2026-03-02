@@ -98,7 +98,7 @@ for category, keywords in event_categories.items():
 
 HIERARCHY_RULES = {
     1: [2, 16], # Storytime consumes: Crafts, Music
-    12: [11] # Early childhood consumes: Children
+    12: [11, 10] # Early childhood consumes: Children
 }
 
 def extract_category_ids(title: str, description: str) -> list[int]:
