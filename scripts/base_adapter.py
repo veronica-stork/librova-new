@@ -1,4 +1,5 @@
 import re
+from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
 from utils.categorization import extract_category_ids
@@ -36,6 +37,28 @@ class BaseLibraryScraper:
         print(f"✅ Successfully processed and tagged {len(public_events)} events for library {self.library_id}")
         return public_events
 
+    def clean_html(self, raw_html: str) -> str:
+        """
+        Strips HTML tags from descriptions while preserving natural line breaks 
+        for paragraphs and lists.
+        """
+        if not raw_html:
+            return ""
+            
+        soup = BeautifulSoup(raw_html, 'html.parser')
+        
+        # 1. Convert structural tags to actual line breaks so text doesn't mash together
+        for tag in soup.find_all(['br', 'p', 'li', 'div']):
+            tag.insert_after('\n')
+            
+        # 2. Extract the raw text
+        text = soup.get_text(strip=True)
+        
+        # 3. Clean up messy whitespace (reduce 3+ newlines to just 2)
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        
+        return text.strip()
+    
     def parse_datetime(self, date_val: str, time_val: Optional[str] = None, is_all_day: bool = False) -> Optional[datetime]:
         if not date_val:
             return None

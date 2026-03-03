@@ -61,6 +61,7 @@ class GoogleCalendarAdapter(BaseLibraryScraper):
 
             title = item.get('summary', 'No Title')
             description = item.get('description', '')
+            clean_desc = self.clean_html(description)
             
             # GCal start times: 'dateTime' for specific times, 'date' for all-day
             start_info = item.get('start', {})
@@ -72,7 +73,7 @@ class GoogleCalendarAdapter(BaseLibraryScraper):
             if dt_obj:
                 events.append(StandardizedEvent(
                     title=title,
-                    description=description,
+                    description=clean_desc,
                     start_time=dt_obj,
                     library_id=self.library_id,
                     event_url=item.get('htmlLink', '')
