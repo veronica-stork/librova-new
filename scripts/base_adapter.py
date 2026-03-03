@@ -17,157 +17,105 @@ class BaseLibraryScraper:
         3. Filter out private/cancelled events (the Bouncer)
         4. Inject category tags
         """
-
         raw_data = self.fetch_data()
         if not raw_data:
             print(f"⚠️ No data fetched for library {self.library_id}")
             return []
-        standardized_events = self.normalize_data(raw_data)
+        
+        all_events = self.normalize_data(raw_data)
 
-        for event in standardized_events:
-            if not is_public_event(event.title, event.description):
-                # If it returns False, we just skip to the next event
-                print(f"🚫 Blocked: {event.title}") # Optional: uncomment to see it working!
-                continue
-            
-            # Auto-tag every event right before it leaves the factory
-            event.category_ids = extract_category_ids(event.title, event.description)
+        public_events = []
 
-        print(f"✅ Successfully processed and tagged {len(standardized_events)} events for library {self.library_id}")
-        return standardized_events
+        for event in all_events:
+            if is_public_event(event.title, event.description):
+                event.category_ids = extract_category_ids(event.title, event.description)
+                public_events.append(event)
+            else:
+                print(f"🚫 Blocked: {event.title}")
+        print(f"✅ Successfully processed and tagged {len(public_events)} events for library {self.library_id}")
+        return public_events
 
     def parse_datetime(self, date_val: str, time_val: Optional[str] = None, is_all_day: bool = False) -> Optional[datetime]:
-
-        """
-
-        Polymorphic date parser for Librova.
-
-        Handles ISO strings (LibCal) and human-readable HTML strings (Assabet).
-
-        """
-
         if not date_val:
-
             return None
 
-
-
         # --- 1. ISO / LibCal Logic ---
-
         if "T" in str(date_val) or is_all_day:
-
             try:
-
                 clean_date = str(date_val).split('T')[0]
-
                 return datetime.fromisoformat(f"{clean_date}T00:00:00")
-
             except ValueError:
-
                 pass
 
-
-
-        # --- 2. String-Based / Assabet Logic ---
-
+        # --- 2. String-Based Logic ---
         if time_val:
-
-            time_clean = time_val.lower().strip()
-
-           
-
-            # ⛔ Skip actual closures
-
-            if "closed" in time_clean:
-
+            time_clean_upper = time_val.upper().replace('.', '').strip()
+            
+            if "CLOSED" in time_clean_upper:
                 return None
 
-
-
-            # ✅ Catch "All Day" events
-
-            if "all day" in time_clean:
-
+            if "ALL DAY" in time_clean_upper:
                 try:
-
                     now = datetime.now()
-
                     year = now.year
-
-                    month_part = date_val.split(',')[1].strip().split(' ')[0]
-
+                    month_part = date_val.split(',')[1].strip().split(' ')[0].replace('.', '')
                     event_month = datetime.strptime(month_part[:3], "%b").month
-
-                   
-
-                    if now.month == 12 and event_month == 1:
-
-                        year += 1
-
-                   
-
-                    date_only_str = f"{date_val} {year}"
-
-                    fmt = "%A, %B %d %Y" if len(month_part) > 3 else "%a, %b %d %Y"
-
-                    return datetime.strptime(date_only_str, fmt)
-
-                except Exception:
-
+                    if now.month == 12 and event_month == 1: year += 1
+                    
+                    clean_date_val = date_val.replace('.', '')
+                    date_only_str = f"{clean_date_val} {year}"
+                    for fmt in ["%A, %B %d %Y", "%a, %b %d %Y", "%A, %b %d %Y", "%a, %B %d %Y"]:
+                        try: return datetime.strptime(date_only_str, fmt)
+                        except ValueError: continue
                     return None
-
-
-
-            # 🕒 Standard time parsing logic
+                except Exception: return None
 
             try:
-                # 1. Split the range safely using regex to catch ALL dashes (hyphen, en-dash, em-dash)
-                start_time = re.split(r'[-–—]', time_val)[0].strip()
+                # 1. Split range and strip junk
+                start_time = re.split(r'[-–—\(]', time_val)[0].strip().replace('.', '')
+                start_time_upper = start_time.upper()
 
-                # 2. Smart Period Inference (The Bulletproof Version)
-                # Remove periods so "p.m." becomes "PM"
-                time_clean_upper = time_val.upper().replace('.', '')
-                start_time_upper = start_time.upper().replace('.', '')
-
+                # 2. Smart Period Inference
                 if "AM" not in start_time_upper and "PM" not in start_time_upper:
-                    if "PM" in time_clean_upper:
-                        start_time = f"{start_time} PM"
-                    elif "AM" in time_clean_upper:
-                        start_time = f"{start_time} AM"
-                    else:
-                        # 3. The "Library Hours" Fallback
-                        # If there is NO indicator at all, guess based on the hour.
-                        try:
-                            hour = int(start_time.split(':')[0])
-                            # Libraries don't do events from 1 AM - 7 AM. 
-                            if hour < 8 or hour == 12:
+                    # If the WHOLE string has a PM, and it's not a morning hour (8-11), it's PM
+                    try:
+                        hour_match = re.search(r'(\d+)', start_time)
+                        if hour_match:
+                            hour = int(hour_match.group(1))
+                            if 8 <= hour <= 11:
+                                start_time = f"{start_time} AM"
+                            elif "PM" in time_clean_upper:
                                 start_time = f"{start_time} PM"
                             else:
-                                start_time = f"{start_time} AM"
-                        except Exception:
-                            start_time = f"{start_time} AM"
+                                # Default to PM for 12, 1, 2, 3, 4, 5, 6, 7
+                                start_time = f"{start_time} PM"
+                    except Exception:
+                        start_time = f"{start_time} AM"
 
-                # 4. Handle Year Rollover
+                # 3. Final Normalization
+                start_time = re.sub(r'(?i)\s*(am|pm)', r' \1', start_time).strip().upper()
+                if ':' not in start_time:
+                    start_time = start_time.replace(' AM', ':00 AM').replace(' PM', ':00 PM')
 
+                # 4. Year & Construction
                 now = datetime.now()
                 year = now.year
-                month_part = date_val.split(',')[1].strip().split(' ')[0]
+                month_part = date_val.split(',')[1].strip().split(' ')[0].replace('.', '')
                 event_month = datetime.strptime(month_part[:3], "%b").month
+                if now.month == 12 and event_month == 1: year += 1
 
-                if now.month == 12 and event_month == 1:
+                clean_date_val = date_val.replace('.', '')
+                full_date_str = f"{clean_date_val} {year} {start_time}"
 
-                    year += 1
-
-                # 5. Construct and Parse
-
-                full_date_str = f"{date_val} {year} {start_time}"
-
-                fmt = "%A, %B %d %Y %I:%M %p" if len(month_part) > 3 else "%a, %b %d %Y %I:%M %p"
-                return datetime.strptime(full_date_str, fmt)
-
-           
-
-            except (ValueError, IndexError, AttributeError) as e:
-                print(f"⚠️ Polymorphic Parse Error for '{date_val}' / '{time_val}': {e}")
+                for fmt in ["%A, %B %d %Y %I:%M %p", "%a, %b %d %Y %I:%M %p", "%A, %b %d %Y %I:%M %p", "%a, %B %d %Y %I:%M %p"]:
+                    try: return datetime.strptime(full_date_str, fmt)
+                    except ValueError: continue
+                
+                print(f"⚠️ Failed to parse final string: {full_date_str}")
                 return None
+
+            except Exception as e:
+                print(f"⚠️ Parse Error: {e}")
+                return None
+                
         return None

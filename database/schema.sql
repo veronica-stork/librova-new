@@ -70,3 +70,5 @@ VALUES
         'libcal', 
         '{"c": "20923", "iid": "6801", "platform": "libcal", "base_api_url": "https://rosendalelibrary.libcal.com"}'::jsonb
     );
+
+

@@ -23,35 +23,6 @@ export interface LibraryEvent {
 }
 
 export default function EventCard({ event }: { event: LibraryEvent }) {
-  
-  // Logic to handle "All Day" events based on the 00:00:00 timestamp convention
-const formatDisplayTime = (dateStr: string, timeStr: string) => {
-  // 1. Immediate "All Day" check - the most reliable way!
-  // If the string starts with 00:00, it's an All Day event from our scraper.
-  if (timeStr && timeStr.startsWith("00:00")) {
-    return "All Day";
-  }
-
-  try {
-    // 2. If it's not All Day, let's try to format the time string safely.
-    // If timeStr is "14:30:00", we want to turn it into a Date just to format it.
-    // We use a dummy date because we only care about the time.
-    const [hours, minutes] = timeStr.split(':');
-    const dummyDate = new Date();
-    dummyDate.setHours(parseInt(hours), parseInt(minutes));
-
-    if (isNaN(dummyDate.getTime())) return "Time TBA";
-
-    return dummyDate.toLocaleTimeString([], { 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      hour12: true 
-    });
-  } catch (e) {
-    console.error("Formatting error:", e);
-    return "Time TBA";
-  }
-};
 
   const categories = event.category_ids || [];
   const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
@@ -84,7 +55,7 @@ const formatDisplayTime = (dateStr: string, timeStr: string) => {
           </svg>
           {/* We assume event.date is pre-formatted or handled by the parent, 
               but we transform the time here */}
-          <span>{event.date} • {formatDisplayTime(event.date, event.time)}</span>
+          <span>{event.date} • {event.time}</span>
         </div>
 
         {/* Title & Library Name */}

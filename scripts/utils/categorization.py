@@ -46,7 +46,7 @@ event_categories = {
     ],
     "games": [
         "board game", "video game", "trivia", "bingo", "chess", 
-        "mahjong", "mah jong", "d&d", "dungeons and dragons", "scrabble", 
+        "mahjong", "mah jong", "d&d", "dungeons and dragons", "dungeons & dragons", "scrabble", 
         "puzzle", "esports", "gaming", "switch", "tabletop", "wii", "mah jongg",
         "pokemon", "magic: the gathering"
     ],

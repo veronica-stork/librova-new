@@ -62,19 +62,31 @@ export async function GET(request: Request) {
       `;
     }
 
-    const formattedEvents = events.map(event => {
+const formattedEvents = events.map(event => {
       const eventDate = new Date(event.start_time);
-      
+      const timeZone = 'America/New_York';
+
+      // 1. Detect "All Day" (Scraper convention: T00:00:00 or T05:00:00 UTC)
+      // Since your DB has +00, an All Day event at midnight EST is 05:00:00 UTC.
+      const hours = eventDate.getUTCHours();
+      const isAllDay = (hours === 0 || hours === 5) && 
+                       eventDate.getUTCMinutes() === 0;
+
       return {
         id: event.id,
         title: event.title,
         libraryName: event.library_name,
-        date: eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        time: eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        // Format the Date using NY time
+        date: eventDate.toLocaleDateString('en-US', { 
+          month: 'short', day: 'numeric', year: 'numeric', timeZone 
+        }),
+        // Format the Time OR return "All Day"
+        time: isAllDay ? "All Day" : eventDate.toLocaleTimeString('en-US', { 
+          hour: 'numeric', minute: '2-digit', timeZone 
+        }),
         description: event.description || "No description provided.",
         sourceUrl: event.event_url || "#",
         category_ids: event.category_ids || [],
-        // Safely handle null distances so the frontend doesn't render "0 miles away"
         distance: event.distance_miles !== null ? Math.round(event.distance_miles * 10) / 10 : null 
       };
     });

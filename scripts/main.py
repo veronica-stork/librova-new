@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 
 from utils.db_cleanup import prune_past_events
 from adapters.assabet import AssabetAdapter
-from adapters.libcal import LibCalAdapter  
+from adapters.libcal import LibCalAdapter 
+from adapters.engaged_patrons import EngagedPatronsAdapter 
 
 def fetch_libraries_from_db():
     """Fetches all library records and their configurations from the PostgreSQL database."""
@@ -82,6 +83,12 @@ def main():
                 scraper = LibCalAdapter(
                     library_id=lib_id, 
                     config=config
+                )
+
+            elif platform == 'engaged_patrons':
+                scraper = EngagedPatronsAdapter(
+                    library_id=lib_id,
+                    site_id=config.get('site_id')
                 )
 
             elif platform == "google":
