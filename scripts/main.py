@@ -8,6 +8,7 @@ from utils.db_cleanup import prune_past_events
 from adapters.assabet import AssabetAdapter
 from adapters.libcal import LibCalAdapter 
 from adapters.engaged_patrons import EngagedPatronsAdapter 
+from adapters.google import GoogleCalendarAdapter
 
 def fetch_libraries_from_db():
     """Fetches all library records and their configurations from the PostgreSQL database."""
@@ -92,7 +93,10 @@ def main():
                 )
 
             elif platform == "google":
-                print(f"⌛ Adapter for 'google' is not yet implemented. Skipping.")
+                scraper = GoogleCalendarAdapter(
+                    library_id=lib_id,
+                    calendar_id=config.get('calendar_id')
+                )
                 
             else:
                 print(f"⚠️ Warning: Unknown platform '{platform}' for {lib_name}. Skipping.")
