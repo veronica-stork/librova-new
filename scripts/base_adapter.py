@@ -28,7 +28,8 @@ class BaseLibraryScraper:
 
         for event in all_events:
             if is_public_event(event.title, event.description):
-                event.category_ids = extract_category_ids(event.title, event.description)
+                if not event.category_ids:
+                    event.category_ids = extract_category_ids(event.title, event.description)
                 public_events.append(event)
             else:
                 print(f"🚫 Blocked: {event.title}")

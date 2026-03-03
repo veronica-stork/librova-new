@@ -5,10 +5,13 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
 from utils.db_cleanup import prune_past_events
+
+# Adapters 
 from adapters.assabet import AssabetAdapter
 from adapters.libcal import LibCalAdapter 
 from adapters.engaged_patrons import EngagedPatronsAdapter 
 from adapters.google import GoogleCalendarAdapter
+from adapters.poklib import PokLibAdapter
 
 def fetch_libraries_from_db():
     """Fetches all library records and their configurations from the PostgreSQL database."""
@@ -96,6 +99,12 @@ def main():
                 scraper = GoogleCalendarAdapter(
                     library_id=lib_id,
                     calendar_id=config.get('calendar_id')
+                )
+
+            elif platform == "poklib":
+                scraper = PokLibAdapter(
+                    library_id=lib_id,
+                    target_url=config.get('base_url')
                 )
                 
             else:
