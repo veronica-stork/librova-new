@@ -1,6 +1,7 @@
 import re
 
-# A list of exact substrings that indicate a private room booking
+# A list of exact substrings that indicate a private room booking, a cancelled event, 
+# or a meeting (e.g. board meeting) that is public, but not exactly an "event" in the traditional sense.
 EXCLUSION_KEYWORDS = [
     "(comm)", 
     "room reservation",
@@ -14,7 +15,9 @@ EXCLUSION_KEYWORDS = [
     "cancelled",
     "canceled",
     "postponed",
-    "room reserved"
+    "room reserved",
+    "board meeting",
+    "meeting of the board of trustees"
 ]
 
 def is_public_event(title: str, description: str) -> bool:

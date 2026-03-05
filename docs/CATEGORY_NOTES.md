@@ -6,7 +6,7 @@
 - I am seeing a number of board and committee meetings showing up. Obviously board meetings are open to the public, but I don't think a user looking for something to do is going to want to attend a board meeting randomly. I will add `board meeting` to the bounced terms. I am torn on adding `committee` as that could also be used in the context of a teen advisory committee. 
 - Found another variation of the word "Mah Jongg" (I think we're at 3 different ones now.) Must add `Mah-Jongg` to `games`. 
 - I need to create more robust separation of `STEM` events and `tech help` events. There is an obvious difference in the audiences and goals of, for example, a program on how to access your email on your phone and one on how to create a game in Python. I am going to make sure the `tech help` category includes the terms `tech help`, `technology help`, and `technology questions`, and that it "consumes" the `STEM` category.
-- I need to limit the number of categories displayed to 2 or 3 as they are overtaking the card in some cases. This will require ranking them in terms of importance, which is another challenge, then displaying only the top categories.
+- I need to limit the number of categories displayed to 2 or 3 as they are overtaking the card in some cases. This will require ranking them in terms of importance, which is another challenge, then displaying only the top categories. - **STILL TO DO**
 
 **March 5, 2026**
 

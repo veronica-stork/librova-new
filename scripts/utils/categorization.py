@@ -36,7 +36,8 @@ event_categories = {
     ],
     "tech_help": [
         "tech help", "computer help", "smart phone", "ipad", 
-        "tablet", "device advice", "tech tutor", "software help", "digital literacy"
+        "tablet", "device advice", "tech tutor", "software help", "digital literacy", "technology help", 
+        "technology questions", "tech questions"
     ],
     "health": ["nutrition", "diet", "zumba", "pilates", "tai chi", "qigong", "yoga", 
                "exercise", "self-care", "wellness", "meditation", "mindfulness", "stress", 
@@ -50,18 +51,19 @@ event_categories = {
     "games": [
         "board game", "video game", "trivia", "bingo", "chess", 
         "mahjong", "mah jong", "d&d", "dungeons and dragons", "dungeons & dragons", "scrabble", 
-        "puzzle", "esports", "gaming", "switch", "tabletop", "wii", "mah jongg",
-        "pokemon", "magic: the gathering"
+        "puzzle", "esports", "gaming", "nintendo switch", "tabletop", "wii", "mah jongg",
+        "pokemon", "magic: the gathering", "mah-jongg", "mah-jong", "canasta", "play bridge"
     ],
     "special_needs": [
-        "all abilities", "sensory-friendly", "adaptive", "special needs", 
-        "inclusive", "neurodiversity", "neurodivergent"
+        "all abilities", "sensory-friendly", "adaptive", "special needs"
     ],
     "languages": [
         "esl", "english as a second language", "ell", "english learners", 
         "language learning", "conversation group", "learn french", "learn spanish", "learn german",
         "learn chinese", "learn portuguese", "learn italian", "practice spanish", "practice italian",
-        "practice german", "practice chinese", "practice portuguese", "practice french"
+        "practice german", "practice chinese", "practice portuguese", "practice french", "french conversation",
+        "german conversation", "chinese conversation", "portuguese conversation", "spanish conversation", 
+        "italian conversation"
     ],
     "teens": ["teen", "youth", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "adults only", "retirement", "medicare"],
@@ -101,7 +103,8 @@ for category, keywords in event_categories.items():
 
 HIERARCHY_RULES = {
     1: [2, 16], # Storytime consumes: Crafts, Music
-    12: [11, 10] # Early childhood consumes: Children
+    12: [11, 10], # Early childhood consumes: Children
+    13: [7] # Tech help consumes STEM
 }
 
 def extract_category_ids(title: str, description: str) -> list[int]:
@@ -109,13 +112,15 @@ def extract_category_ids(title: str, description: str) -> list[int]:
     text_to_search = f"{title or ''} {description or ''}".lower()
     
 # --- 🧽 THE CONTEXT SCRUBBER ---
-    # Erase phrases where "art" means a practice/skill, not a craft.
-    # By replacing them with a space, the regex engine will never even see the word "art" here.
+    # Remove phrases that can cause incorrect categorization, e.g. we want "art" to be categorized as crafts,
+    # but not if it is part of the phrase "martial arts", "state of the art", etc.
     false_positive_phrases = [
         "the art of", 
         "martial art", 
         "martial arts", 
-        "state of the art"
+        "state of the art",
+        "science of",
+        "wealth of knowledge"
     ]
 
     for phrase in false_positive_phrases:
