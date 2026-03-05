@@ -47,14 +47,17 @@ class BaseLibraryScraper:
             
         soup = BeautifulSoup(raw_html, 'html.parser')
         
-        # 1. Convert structural tags to actual line breaks so text doesn't mash together
+        # 1. Convert structural tags to a temporary text placeholder
         for tag in soup.find_all(['br', 'p', 'li', 'div']):
-            tag.insert_after('\n')
+            tag.insert_after('__LINE_BREAK__')
             
-        # 2. Extract the raw text
+        # 2. Extract the raw text (this strips surrounding spaces but ignores our placeholder)
         text = soup.get_text(strip=True)
         
-        # 3. Clean up messy whitespace (reduce 3+ newlines to just 2)
+        # 3. Swap the placeholder back to actual newlines
+        text = text.replace('__LINE_BREAK__', '\n')
+        
+        # 4. Clean up messy whitespace (reduce 3+ newlines to just 2)
         text = re.sub(r'\n{3,}', '\n\n', text)
         
         return text.strip()

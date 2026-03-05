@@ -12,6 +12,7 @@ from adapters.libcal import LibCalAdapter
 from adapters.engaged_patrons import EngagedPatronsAdapter 
 from adapters.google import GoogleCalendarAdapter
 from adapters.poklib import PokLibAdapter
+from adapters.my_calendar import MyCalendarAdapter
 
 def fetch_libraries_from_db():
     """Fetches all library records and their configurations from the PostgreSQL database."""
@@ -103,6 +104,12 @@ def main():
 
             elif platform == "poklib":
                 scraper = PokLibAdapter(
+                    library_id=lib_id,
+                    target_url=config.get('base_url')
+                )
+
+            elif platform == "my_calendar":
+                scraper = MyCalendarAdapter(
                     library_id=lib_id,
                     target_url=config.get('base_url')
                 )

@@ -16,6 +16,9 @@ event_categories = {
         "read to", "tales", "lapsit", "bedtime story", "wiggles",
         "fingerplay", "mother goose"
     ],
+    "history": [
+        "history"
+    ],
     "early_childhood": [
         "twos", "threes", "two-year-olds", "three-year-olds", "pre-k", 
         "preschool", "toddler", "kindergarten", "early literacy", "playgroup"
