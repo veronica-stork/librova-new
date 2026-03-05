@@ -27,7 +27,8 @@ event_categories = {
         "craft", "diy", "make and take", "make & take", "origami", 
         "painting", "knitting", "crochet", "sewing", "scrapbooking", 
         "drawing", "maker", "watercolor", "yarn", "papercraft",
-        "quilter", "quilting", "crafter", "needlework", "embroidery", "mixed media", "collage"
+        "quilter", "quilting", "crafter", "needlework", "embroidery", "mixed media", "collage", 
+        "junk journaling", "candle making", "zines"
     ],
     "stem": [
         "stem", "steam", "coding", "robotics", "lego", "science", 
@@ -66,7 +67,7 @@ event_categories = {
         "italian conversation"
     ],
     "teens": ["teen", "youth", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
-    "adults": ["adult", "18+", "seniors", "elder", "21+", "adults only", "retirement", "medicare"],
+    "adults": ["adult", "18+", "seniors", "elder", "21+", "18+", "adults only", "retirement", "medicare"],
     "children": ["kid", "child", "baby", "babies", "elementary", "tween", "grades k-5"],
     "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"],
     "music": ["music", "concert", "performance", "recital", "symphony", "gig", "acoustic", "band", "instruments",
@@ -110,7 +111,26 @@ HIERARCHY_RULES = {
 def extract_category_ids(title: str, description: str) -> list[int]:
     """Scans text for keywords and returns a deduplicated list of category IDs."""
     text_to_search = f"{title or ''} {description or ''}".lower()
-    
+
+
+    # Identify negations (adult only, no kids allowed events)
+    is_adult_only = any(phrase in text_to_search for phrase in [
+        "no kids", "adults only", "18+", "21+", "no children", "grown-ups only"
+    ])
+
+    # Phrases that contain the word "adult" but are children's events
+    participation_phrases = [
+        "adult must be present",
+        "adult participation required",
+        "with an adult",
+        "accompanied by an adult",
+        "adult supervision",
+        "parent or caregiver"
+    ]
+
+    # Check if this is actually a requirement, not a demographic
+    is_participation_requirement = any(p in text_to_search for p in participation_phrases)
+
 # --- 🧽 THE CONTEXT SCRUBBER ---
     # Remove phrases that can cause incorrect categorization, e.g. we want "art" to be categorized as crafts,
     # but not if it is part of the phrase "martial arts", "state of the art", etc.
@@ -130,7 +150,18 @@ def extract_category_ids(title: str, description: str) -> list[int]:
     matched_ids = set()
     for category, pattern in COMPILED_RULES.items():
         if pattern.search(text_to_search):
-            matched_ids.add(CATEGORY_ID_MAP[category])
+            cat_id = CATEGORY_ID_MAP[category]
+
+            # Don't add "children" as category for adults only events
+            if is_adult_only and cat_id in [11, 12]:
+                continue
+
+            # If we found 'adult' keywords but it's just a participation requirement,
+            # don't tag it as an Adult (9) program.
+            if cat_id == 9 and is_participation_requirement:
+                continue
+                                            
+            matched_ids.add(cat_id)
             
     # --- The Deduplicator Logic ---
     ids_to_remove = set()

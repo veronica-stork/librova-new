@@ -37,6 +37,29 @@ class BaseLibraryScraper:
         print(f"✅ Successfully processed and tagged {len(public_events)} events for library {self.library_id}")
         return public_events
 
+    def clean_title(self, title: str) -> str:
+        """
+        Universal title cleaner to remove time prefixes and redundant whitespace.
+        Handles formatting junk like: "Category: General2:00 pm: Award-Worthy Film Series"
+        or manually typed titles like "10:30am - Storytime".
+        """
+        if not title:
+            return ""
+
+        # 1. Strip "Category: X" prefixes (specific to MyCalendar and similar plugins)
+        # We look for 'Category:' followed by text up until it hits a digit (the time)
+        title = re.sub(r'^Category:\s*.*?(?=\d)', '', title, flags=re.IGNORECASE)
+
+        # 2. Strip Time Prefixes (e.g., "2:00 pm:", "10:30am -")
+        # Matches: start of string, 1-2 digits, colon, 2 digits, optional space, am/pm, optional separator
+        time_prefix_pattern = r'^\d{1,2}:\d{2}\s*[ap]m\s*[:\-]?\s*'
+        title = re.sub(time_prefix_pattern, '', title, flags=re.IGNORECASE)
+
+        # 3. Final cleanup of any stray characters left at the start and redundant spaces
+        title = title.lstrip(":- ").strip()
+        
+        return title
+
     def clean_html(self, raw_html: str) -> str:
         """
         Strips HTML tags from descriptions while preserving natural line breaks 

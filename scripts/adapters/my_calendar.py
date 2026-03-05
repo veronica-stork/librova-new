@@ -54,15 +54,22 @@ class MyCalendarAdapter(BaseLibraryScraper):
         
         for article in article_nodes:
             try:
-                # --- 1. Title ---
+                # Look for the title tag as usual
                 title_tag = article.find(['h4', 'h3'], class_=re.compile(r'mc-title|event-title'))
                 if not title_tag:
                     continue
-                
-                raw_title = title_tag.get_text(strip=True)
-                # Clean up "2:00 pm: Title" prefixes that this plugin sometimes prepends to the text
-                title = re.sub(r'^\d{1,2}:\d{2}\s*[ap]m:\s*', '', raw_title, flags=re.IGNORECASE)
 
+                # 🎯 Narrow Selector: Check if there's a div inside a button (specific to MyCalendar)
+                # This avoids pulling in the <title> tag inside the <svg>
+                inner_div = title_tag.select_one("button div")
+                if inner_div:
+                    raw_title = inner_div.get_text(strip=True)
+                else:
+                    raw_title = title_tag.get_text(strip=True)
+
+                # We send it to clean_title (which we will move to the Base Adapter)
+                title = self.clean_title(raw_title)
+                
                 # --- 2. Start Time ---
                 # Rely on the ISO string embedded in the <time> tag
                 time_tag = article.find('time', class_='value-title')
