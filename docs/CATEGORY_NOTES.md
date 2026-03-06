@@ -19,7 +19,7 @@
 
 - I am exploring the possibility of using a small language model to assist in categorization. The flow will be as follows:
 
-```mermaid.js
+```mermaid
 graph TD
     A[New Event Scraped] --> B{Has Provided Tags?}
     B -- Yes --> C[Use Library Tags]
