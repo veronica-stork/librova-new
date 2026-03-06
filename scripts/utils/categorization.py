@@ -6,7 +6,8 @@ CATEGORY_ID_MAP = {
     "history": 5, "health": 6, "stem": 7, "teens": 8, 
     "adults": 9, "family": 10, "children": 11,
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
-    "languages": 15, "music": 16, "money": 17
+    "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
+    "literacy": 20
 }
 
 event_categories = {
@@ -78,7 +79,10 @@ event_categories = {
               "ira", "personal finance", "wealth", "financial planning", "tax prep", "aarp tax-aide", 
               "vita", "irs", "tax filing", "property tax", "tax exemptions", "income tax", "power of attorney", 
               "estate planning", "wills", "trusts", "probate", "social security", "medicare", "insurance",
-              "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"]
+              "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"],
+    "gardening": ["garden", "plant", "gardening"],
+    "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
+    "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"]
 }
 
 COMPILED_RULES = {}

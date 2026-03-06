@@ -14,3 +14,21 @@
 - The new "My Calendar" calendars are picking up categories in the titles, e.g. *Category: GeneralWinter Storytime*. Sometimes, categories *and* times, e.g. *Category: General3:00 pm–5:00 pmWeekly Wellness Day with Mountain Top Cares Coalition*. I need to figure out why. 
 - Some events show as having no link when they do actually have a link. I need to figure out why. It doesn't necessarily seem to be tied to particular calendars or libraries - for example, today I see two events from Pawling - one with a link and one without.
 - "French Conversation Class" was not picked up as being a foreign language program, probably because I removed the word "french" from the category. I did this because a lecture on French history was getting flagged as a language program. I will add "French conversation," "spanish conversation," etc. to the category.
+
+**March 6, 2026**
+
+- I am exploring the possibility of using a small language model to assist in categorization. The flow will be as follows:
+
+```mermaid.js
+graph TD
+    A[New Event Scraped] --> B{Has Provided Tags?}
+    B -- Yes --> C[Use Library Tags]
+    B -- No --> D{Regex Match Found?}
+    D -- Yes --> E{Count > 3?}
+    E -- No --> F[Use Regex Tags]
+    E -- Yes --> G[Consult Gemini]
+    D -- No --> G
+    G --> H[Final Categorization]
+    C --> H
+    F --> H
+```
