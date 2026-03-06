@@ -6,7 +6,7 @@ export const CATEGORY_MAP: Record<number, string> = {
   5: "History", 6: "Health", 7: "STEM", 8: "Teens", 
   9: "Adults", 10: "Family", 11: "Children", 
   12: "Early Childhood", 13: "Tech Help", 14: "Special Needs", 15: "Languages", 
-  16: "Music", 17: "Money", 18: "Gardening", 19: "Cooking", 20: "Literacy"
+  16: "Music", 17: "Money", 18: "Gardening", 19: "Cooking", 20: "Literacy", 21: "Movies"
 };
 
 // Define the shape of your event JSON data

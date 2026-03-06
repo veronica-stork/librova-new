@@ -40,3 +40,9 @@ My logic is this:
 3. If the regex matcher finds more than 3 categories OR if it doesn't find any, a small language model (Gemini 3 Flash) is consulted. It will find the 3 most relevant categories. 
 
 This waterfall method ensures that every event gets at least one category, but only resorts to using AI when more efficient means have come up short.
+
+---
+
+As for my existing category tagging... The following event got categorized as `health` because of the word `exercises` in it:
+"Learn to use this free online graphic design tool to create your own fliers, brochures, presentations, invitations, and more. If you can dream it up, you can make it a reality! Please bring a laptop if you have one so you can follow along with the **exercises**."
+Considering whether I should remove `exercises` from the health category, as theoretically, if something is a health event, it should have other, more specific words, that would indicate that.

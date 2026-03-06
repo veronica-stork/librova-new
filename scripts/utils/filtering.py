@@ -4,6 +4,8 @@ import re
 # or a meeting (e.g. board meeting) that is public, but not exactly an "event" in the traditional sense.
 EXCLUSION_KEYWORDS = [
     "(comm)", 
+    "(study)",
+    "(conf)",
     "room reservation",
     "private event",
     "baby shower",

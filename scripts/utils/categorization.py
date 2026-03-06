@@ -7,7 +7,7 @@ CATEGORY_ID_MAP = {
     "adults": 9, "family": 10, "children": 11,
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
-    "literacy": 20
+    "literacy": 20, "movies": 21
 }
 
 event_categories = {
@@ -42,7 +42,7 @@ event_categories = {
         "technology questions", "tech questions"
     ],
     "health": ["nutrition", "diet", "zumba", "pilates", "tai chi", "qigong", "yoga", 
-               "exercise", "self-care", "wellness", "meditation", "mindfulness", "stress", 
+               "self-care", "wellness", "meditation", "mindfulness", "stress", 
                "mental health", "grief", "alzheimer's", "dementia", "depression", "support group", 
                "cardio", "strength training", "aerobics", "narcan", "addiction", "cpr", "first aid"],
     "book_talks": [
@@ -82,7 +82,8 @@ event_categories = {
               "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"],
     "gardening": ["garden", "plant", "gardening"],
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
-    "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"]
+    "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"],
+    "movies": ["movie", "movies", "film", "cinema"]
 }
 
 COMPILED_RULES = {}
