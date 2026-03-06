@@ -75,8 +75,7 @@ export default function EventCard({ event, onLibraryClick }: { event: LibraryEve
               e.preventDefault();
               if (onLibraryClick) onLibraryClick();
             }}
-            className="truncate hover:text-rose-500 hover:underline transition-colors text-left"
-          >
+            className="text-left hover:text-rose-500 hover:underline transition-colors truncate"          >
             {event.libraryName}
             {event.distance !== undefined && event.distance !== null && (
               <span className="ml-1 text-teal-600 font-bold">({event.distance} mi)</span>

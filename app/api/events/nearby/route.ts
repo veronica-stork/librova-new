@@ -5,6 +5,7 @@ import { neon } from '@neondatabase/serverless';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const libraryParam = searchParams.get('library');
   
   const latParam = searchParams.get('lat');
   const lngParam = searchParams.get('lng');
@@ -43,6 +44,7 @@ export async function GET(request: Request) {
         WHERE ST_DWithin(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography, ${radiusMiles} * 1609.34)
         AND e.start_time >= NOW()
         ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
+        ${libraryParam ? sql`AND l.name = ${libraryParam}` : sql``}
         ORDER BY e.start_time ASC
         LIMIT 100;
       `;
@@ -57,6 +59,7 @@ export async function GET(request: Request) {
         JOIN libraries l ON e.library_id = l.id
         WHERE e.start_time >= NOW()
         ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
+        ${libraryParam ? sql`AND l.name = ${libraryParam}` : sql``}
         ORDER BY e.start_time ASC
         LIMIT 100;
       `;

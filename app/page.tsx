@@ -33,13 +33,15 @@ export default function LibrovaHome() {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [radius, setRadius] = useState(15);
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
 
   // Updated to accept currentRadius to bypass React's async state batching
   const fetchEvents = async (
     lat?: number | null, 
     lng?: number | null, 
     cats: number[] = selectedCategories,
-    currentRadius: number = radius 
+    currentRadius: number = radius,
+    libName: string | null = selectedLibrary 
   ) => {
     setIsLoading(true);
     try {
@@ -53,6 +55,10 @@ export default function LibrovaHome() {
       
       if (cats.length > 0) {
         params.append('categories', cats.join(','));
+      }
+
+      if (libName) {
+        params.append('library', libName)
       }
 
       const queryString = params.toString();
@@ -85,6 +91,11 @@ export default function LibrovaHome() {
     if (userLocation?.lat && userLocation?.lng) {
       fetchEvents(userLocation.lat, userLocation.lng, selectedCategories, newRadius);
     }
+  };
+
+  const handleLibraryClick = (name: string) => {
+    setSelectedLibrary(name);
+    fetchEvents(userLocation?.lat, userLocation?.lng, selectedCategories, radius, name);
   };
 
   // Function to reset location
@@ -357,13 +368,25 @@ export default function LibrovaHome() {
         <section>
           <div className="flex justify-between items-end mb-6 px-2">
             <h3 className="text-2xl font-extrabold text-teal-900">Upcoming Events</h3>
+            {selectedLibrary && (
+  <div className="flex items-center gap-2 bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold text-sm">
+    Filtering: {selectedLibrary}
+    <button onClick={() => {
+      setSelectedLibrary(null);
+      fetchEvents(userLocation?.lat, userLocation?.lng, selectedCategories, radius, null);
+    }}>
+      ✕
+    </button>
+  </div>
+)}
             <span className="text-sm font-bold text-teal-600 bg-teal-100 px-3 py-1 rounded-full">
               {events.length} results
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} onLibraryClick={() => handleLibraryClick(event.libraryName)}
+              />
             ))}
           </div>
         </section>
