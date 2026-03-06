@@ -32,3 +32,11 @@ graph TD
     C --> H
     F --> H
 ```
+
+My logic is this:
+
+1. If a library has provided tags, we will use those. These are almost guaranteed to be accurate (unless it is a default "General" category tag.)
+2. If they haven't, the event goes to the Regex-based category matcher. If it finds categories using that tool, and there are fewer than 4 (meaning it won't overcrowd the UI), it will use those categories. 
+3. If the regex matcher finds more than 3 categories OR if it doesn't find any, a small language model (Gemini 3 Flash) is consulted. It will find the 3 most relevant categories. 
+
+This waterfall method ensures that every event gets at least one category, but only resorts to using AI when more efficient means have come up short.
