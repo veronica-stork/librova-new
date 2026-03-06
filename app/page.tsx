@@ -32,6 +32,7 @@ export default function LibrovaHome() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [radius, setRadius] = useState(15);
+  const [searchQuery, setSearchQuery] = useState("")
 
   // Updated to accept currentRadius to bypass React's async state batching
   const fetchEvents = async (
@@ -97,6 +98,52 @@ export default function LibrovaHome() {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleSearch = async () => {
+  const query = searchQuery.trim();
+  if (!query) return;
+
+  setIsLoading(true);
+
+  try {
+    let geoUrl = "";
+
+    // Check if the input is a standard 5-digit US ZIP code
+    if (/^\d{5}$/.test(query)) {
+      geoUrl = `https://nominatim.openstreetmap.org/search?format=json&postalcode=${query}&countrycodes=us&limit=1`;
+    } else {
+      geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=us&limit=1`;
+    }
+
+    console.log("Fetching coordinates from:", geoUrl);
+
+    const response = await fetch(geoUrl);
+    const data = await response.json();
+
+    console.log("Geocoding API response:", data);
+
+    if (data && data.length > 0) {
+      const latitude = parseFloat(data[0].lat);
+      const longitude = parseFloat(data[0].lon);
+
+      console.log(`Success! Updating map to Lat: ${latitude}, Lng: ${longitude}`);
+
+      // Update state and fetch events
+      setUserLocation({ lat: latitude, lng: longitude });
+      
+      // Note: We pass selectedCategories and radius directly from state here
+      fetchEvents(latitude, longitude, selectedCategories, radius);
+      
+    } else {
+      alert(`Could not find a location for "${query}". Try adding the state, like "${query}, NY".`);
+    }
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    alert("Error connecting to the location search service.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLocationClick = () => {
     if (!navigator.geolocation) {
@@ -164,50 +211,50 @@ export default function LibrovaHome() {
             </p>
 
             <div className="flex flex-col md:flex-row gap-4 justify-center items-stretch">
-              <div className="w-full relative flex-grow max-w-lg">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Enter zip code or city..."
-                  className="w-full h-full pl-12 pr-4 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-medium text-lg shadow-inner transition-colors"
-                  readOnly 
-                />
-              </div>
-              
-              <button 
-                onClick={handleLocationClick}
-                disabled={isLoading}
-                className="flex items-center justify-center px-8 py-4 bg-amber-400 text-amber-950 font-bold text-lg rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <span>Finding Libraries...</span>
-                ) : (
-                  <>
-                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Use My Location
-                  </>
-                )}
-              </button>
-                {/* NEW: Clear Location Button */}
-    {/* {userLocation && (
-      <button 
-        onClick={resetLocation}
-        className="px-4 py-4 bg-rose-100 text-rose-700 font-bold rounded-2xl border-b-4 border-rose-300 hover:bg-rose-200 active:border-b-0 active:translate-y-1 transition-all"
-        title="Clear location filter"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" />
+  <div className="w-full relative flex-grow max-w-lg group">
+    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <svg className="h-6 w-6 text-slate-400 group-focus-within:text-teal-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+    <input
+      type="text"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+      placeholder="Zip code, city, or keyword..."
+      className="w-full h-full pl-12 pr-16 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-medium text-lg shadow-inner transition-colors bg-white"
+    />
+    {/* The Internal Search Button */}
+    <button 
+      onClick={handleSearch}
+      className="absolute right-3 top-3 bottom-3 px-4 bg-teal-100 text-teal-700 rounded-xl hover:bg-teal-200 transition-colors flex items-center justify-center"
+      title="Search"
+    >
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+      </svg>
+    </button>
+  </div>
+  
+  <button 
+    onClick={handleLocationClick}
+    disabled={isLoading}
+    className="flex items-center justify-center px-8 py-4 bg-amber-400 text-amber-950 font-bold text-lg rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+  >
+    {isLoading ? (
+      <span>Finding Libraries...</span>
+    ) : (
+      <>
+        <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-      </button>
-    )} */}
-            </div>
+        Use My Location
+      </>
+    )}
+  </button>
+</div>
 
             {/* Filters Section */}
             <div className="mt-10 pt-6 border-t-2 border-teal-400">

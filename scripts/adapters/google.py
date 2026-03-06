@@ -48,6 +48,7 @@ class GoogleCalendarAdapter(BaseLibraryScraper):
             return []
 
     def normalize_data(self, items: Any) -> List[StandardizedEvent]:
+        from datetime import datetime # Make sure this is imported at the top!
         events = []
         if not items:
             return events
@@ -63,13 +64,18 @@ class GoogleCalendarAdapter(BaseLibraryScraper):
             description = item.get('description', '')
             clean_desc = self.clean_html(description)
             
-            # GCal start times: 'dateTime' for specific times, 'date' for all-day
+            # Extract time information
             start_info = item.get('start', {})
-            date_raw = start_info.get('dateTime') or start_info.get('date')
+            dt_obj = None
             
-            # Pass the raw ISO string (e.g., '2026-03-02T10:30:00-05:00') to your Universal Date Engine
-            dt_obj = self.parse_datetime(date_raw)
-            
+            if 'dateTime' in start_info:
+                # Specific time event (e.g., '2026-03-02T10:30:00-05:00')
+                # Python 3.7+ parses ISO-8601 natively
+                dt_obj = datetime.fromisoformat(start_info['dateTime'])
+            elif 'date' in start_info:
+                # True All-Day event (e.g., '2026-03-02')
+                dt_obj = datetime.strptime(start_info['date'], "%Y-%m-%d")
+
             if dt_obj:
                 events.append(StandardizedEvent(
                     title=title,
