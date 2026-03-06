@@ -22,7 +22,14 @@ export interface LibraryEvent {
   distance?: number | null;
 }
 
-export default function EventCard({ event, onLibraryClick }: { event: LibraryEvent, onLibraryClick?: () => void }) {
+interface EventCardProps {
+  event: LibraryEvent;
+  selectedCategories: number[]; // 👈 Add this
+  onLibraryClick?: () => void;
+  onCategoryClick?: (id: number) => void;
+}
+
+export default function EventCard({ event, selectedCategories, onLibraryClick, onCategoryClick }: EventCardProps) {
   const categories = event.category_ids || [];
   const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
 
@@ -35,15 +42,27 @@ export default function EventCard({ event, onLibraryClick }: { event: LibraryEve
           {categories.map((id, index) => {
             const label = CATEGORY_MAP[id];
             if (!label) return null;
+
+            // Check if this tag is currently "on"
+            const isActive = selectedCategories.includes(id);
+
             return (
-              <div 
+              <button 
                 key={id} 
-                className={`bg-amber-100 text-amber-800 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-lg border-2 border-amber-200 shadow-sm transition-transform ${
-                  index % 2 === 0 ? 'rotate-1 group-hover:rotate-3' : '-rotate-1 group-hover:-rotate-3'
-                }`}
-              >
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onCategoryClick) onCategoryClick(id);
+                }}
+        className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-lg border-2 shadow-sm transition-all active:scale-95 ${
+          isActive 
+          ? 'bg-rose-500 text-white border-rose-600 shadow-inner' // Active Style
+          : 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200' // Inactive Style
+      } ${
+        index % 2 === 0 ? 'rotate-1 group-hover:rotate-3' : '-rotate-1 group-hover:-rotate-3'
+      }`}  
+                >
                 {label}
-              </div>
+              </button>
             );
           })}
         </div>
