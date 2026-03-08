@@ -26,7 +26,10 @@ const CATEGORIES = [
   { id: 18, name: 'Gardening'},
   { id: 19, name: 'Cooking'},
   { id: 20, name: 'Literacy'},
-  { id: 21, name: 'Movies'}
+  { id: 21, name: 'Movies'},
+  { id: 22, name: 'Virtual'},
+  { id: 23, name: 'Seniors'},
+  { id: 24, name: 'LGBTQ'}
 ];
 
 const QUICK_FILTER_IDS = [9, 10, 8, 12]; 
