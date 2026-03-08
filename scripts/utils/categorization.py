@@ -7,7 +7,7 @@ CATEGORY_ID_MAP = {
     "adults": 9, "family": 10, "children": 11,
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
-    "literacy": 20, "movies": 21
+    "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24
 }
 
 event_categories = {
@@ -83,7 +83,10 @@ event_categories = {
     "gardening": ["garden", "plant", "gardening"],
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
     "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"],
-    "movies": ["movie", "movies", "film", "cinema"]
+    "movies": ["movie", "movies", "film", "cinema"],
+    "virtual": ["zoom", "online event", "virtual event"],
+    "seniors": ["seniors", "65+", "older adults"],
+    "lgbtq": ["lgbtq", "lgbtqa", "queer"]
 }
 
 COMPILED_RULES = {}
