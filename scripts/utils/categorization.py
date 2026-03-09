@@ -84,7 +84,7 @@ event_categories = {
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
     "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"],
     "movies": ["movie", "movies", "film", "cinema"],
-    "virtual": ["zoom", "online event", "virtual event"],
+    "virtual": ["zoom", "online event", "virtual event", "virtual"],
     "seniors": ["seniors", "65+", "older adults"],
     "lgbtq": ["lgbtq", "lgbtqa", "queer"]
 }
@@ -143,12 +143,21 @@ def extract_category_ids(title: str, description: str) -> list[int]:
     # Remove phrases that can cause incorrect categorization, e.g. we want "art" to be categorized as crafts,
     # but not if it is part of the phrase "martial arts", "state of the art", etc.
     false_positive_phrases = [
+        # English language weirdness
         "the art of", 
         "martial art", 
         "martial arts", 
         "state of the art",
         "science of",
-        "wealth of knowledge"
+        "wealth of knowledge",
+        # Location based exclusions
+        "history room",
+        "art room",
+        "meeting room",
+        "children's room",
+        "kids room",
+        "childrens room",
+        "teen room"
     ]
 
     for phrase in false_positive_phrases:

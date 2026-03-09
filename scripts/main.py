@@ -13,6 +13,7 @@ from adapters.engaged_patrons import EngagedPatronsAdapter
 from adapters.google import GoogleCalendarAdapter
 from adapters.poklib import PokLibAdapter
 from adapters.my_calendar import MyCalendarAdapter
+from adapters.modern_tribe import ModernTribeAdapter
 
 def fetch_libraries_from_db():
     """Fetches all library records and their configurations from the PostgreSQL database."""
@@ -112,6 +113,12 @@ def main():
                 scraper = MyCalendarAdapter(
                     library_id=lib_id,
                     target_url=config.get('base_url')
+                )
+
+            elif platform == "modern_tribe":
+                scraper = ModernTribeAdapter(
+                    library_id=lib_id,
+                    target_url=(config.get('base_url'))
                 )
                 
             else:

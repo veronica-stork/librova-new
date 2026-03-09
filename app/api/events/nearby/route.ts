@@ -34,41 +34,41 @@ export async function GET(request: Request) {
     let events;
 
     if (hasLocation) {
-      // Query WITH geographic filtering
-      events = await sql`
-        SELECT 
-          e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
-          l.name as library_name, l.address,
-          ST_Distance(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography) / 1609.34 as distance_miles
-        FROM events e
-        JOIN libraries l ON e.library_id = l.id
-        WHERE ST_DWithin(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography, ${radiusMiles} * 1609.34)
-        AND e.start_time >= NOW()
-        ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
-        ${libraryParam ? sql`AND l.name = ${libraryParam}` : sql``} 
-        ORDER BY 
-      ${sortParam === 'distance' && hasLocation 
-        ? sql`DATE(e.start_time) ASC, distance_miles ASC, e.start_time ASC` 
-        : sql`e.start_time ASC`
-      }
-      LIMIT 100;
-      `;
-    } else {
-      // Query WITHOUT geographic filtering (All system events)
-      events = await sql`
-        SELECT 
-          e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
-          l.name as library_name, l.address,
-          NULL as distance_miles
-        FROM events e
-        JOIN libraries l ON e.library_id = l.id
-        WHERE e.start_time >= NOW()
-        ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
-        ${libraryParam ? sql`AND l.name = ${libraryParam}` : sql``}
-        ORDER BY e.start_time ASC
-        LIMIT 100;
-      `;
+  // Query WITH geographic filtering
+  events = await sql`
+    SELECT 
+      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
+      l.name as library_name, l.address,
+      ST_Distance(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography) / 1609.34 as distance_miles
+    FROM events e
+    JOIN libraries l ON e.library_id = l.id
+    WHERE ST_DWithin(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography, ${radiusMiles} * 1609.34)
+    AND e.start_time >= NOW()
+    ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
+    ${libraryParam ? sql`AND l.name ILIKE ${'%' + libraryParam + '%'}` : sql``} 
+    ORDER BY 
+    ${sortParam === 'distance' 
+      ? sql`DATE(e.start_time) ASC, distance_miles ASC, e.start_time ASC` 
+      : sql`e.start_time ASC`
     }
+    LIMIT 500;
+  `;
+} else {
+  // Query WITHOUT geographic filtering (All system events)
+  events = await sql`
+    SELECT 
+      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
+      l.name as library_name, l.address,
+      NULL as distance_miles
+    FROM events e
+    JOIN libraries l ON e.library_id = l.id
+    WHERE e.start_time >= NOW()
+    ${categoryIds.length > 0 ? sql`AND e.category_ids && ${categoryIds}::int[]` : sql``}
+    ${libraryParam ? sql`AND l.name ILIKE ${'%' + libraryParam + '%'}` : sql``}
+    ORDER BY e.start_time ASC
+    LIMIT 500;
+  `;
+}
 
 const formattedEvents = events.map(event => {
   const eventDate = new Date(event.start_time);

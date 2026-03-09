@@ -6,6 +6,7 @@ export default function LibrovaWaitlist() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [isStaffMode, setIsStaffMode] = useState(false);
+  const [library, setLibrary] = useState("");
 
 const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
@@ -15,7 +16,8 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     method: 'POST',
     body: JSON.stringify({ 
       email, 
-      source: isStaffMode ? 'staff' : 'user' 
+      source: isStaffMode ? 'staff' : 'user',
+      library 
     }),
     headers: { 'Content-Type': 'application/json' }
   });
@@ -67,72 +69,86 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   into one beautifully searchable feed.
 </p>
           {/* Email Capture Card */}
-          <div className="bg-teal-500 rounded-4xl shadow-[0_8px_0_rgb(15,118,110)] border-4 border-teal-700 p-8 sm:p-10 max-w-xl mx-auto relative group transition-transform hover:-translate-y-1 hover:shadow-[0_12px_0_rgb(15,118,110)]">
-
-
-            {status === 'success' ? (
-              <div className="text-center py-6">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-teal-300">
-                  <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-extrabold text-white mb-2">You're on the list!</h3>
-                <p className="text-teal-100 font-medium">We'll let you know the second Librova goes live.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  required
-                  value={email || ''}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address..."
-                  disabled={status === 'loading'}
-                  className="flex-grow pl-5 pr-4 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-bold text-base shadow-inner transition-colors bg-white disabled:opacity-50"
-                />
-                <button 
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="px-8 py-4 bg-amber-400 text-amber-950 font-extrabold text-base rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {status === 'loading' ? 'Joining...' : 'Join Waitlist'}
-                </button>
-              </form>
-              
-            )}
-
-            <p className="text-teal-100 text-xs font-semibold mt-4 text-center">
-              <span className="text-rose-600">No spam.</span>  We promise. Just one email when we launch.
-            </p>
-                        <div className="mt-6 text-center">
-  {!isStaffMode ? (
-    <p className="text-teal-100 text-sm font-bold">
-      Working at an MHLS branch? 
-      <button 
-        onClick={() => setIsStaffMode(true)}
-        className="ml-2 underline decoration-2 underline-offset-4 hover:text-white transition-colors"
-      >
-        Click here for the Staff Beta →
-      </button>
-    </p>
-  ) : (
-    <div className="bg-teal-600/50 p-3 rounded-xl border border-teal-400">
-      <p className="text-white text-sm font-black italic">
-        STAFF MODE ACTIVATED: Sign up for the Director's Beta.
-      </p>
-      <button 
-        onClick={() => setIsStaffMode(false)}
-        className="text-teal-200 text-xs underline mt-1"
-      >
-        Back to standard signup
-      </button>
+<div className="bg-teal-500 rounded-4xl shadow-[0_8px_0_rgb(15,118,110)] border-4 border-teal-700 p-8 sm:p-10 max-w-xl mx-auto relative group transition-transform hover:-translate-y-1 hover:shadow-[0_12px_0_rgb(15,118,110)]">
+  {status === 'success' ? (
+    <div className="text-center py-6">
+      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-teal-300">
+        <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 className="text-2xl font-extrabold text-white mb-2">You're on the list!</h3>
+      <p className="text-teal-100 font-medium">We'll let you know the second Librova goes live.</p>
     </div>
+  ) : (
+    /* We use a conditional flex-col if staff mode is active to keep things from squishing */
+    <form onSubmit={handleSubmit} className={`flex ${isStaffMode ? 'flex-col' : 'flex-col sm:flex-row'} gap-3`}>
+      <input
+        type="email"
+        required
+        value={email || ''}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter your email address..."
+        disabled={status === 'loading'}
+        className="flex-grow pl-5 pr-4 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-bold text-base shadow-inner transition-colors bg-white disabled:opacity-50"
+      />
+      
+      {isStaffMode && (
+        <input
+          type="text"
+          required
+          value={library || ""}
+          onChange={(e) => setLibrary(e.target.value)}
+          placeholder="Which library do you work at?"
+          className="flex-grow pl-5 pr-4 py-4 border-4 border-transparent rounded-2xl focus:border-amber-300 outline-none text-slate-900 font-bold text-base shadow-inner transition-colors bg-white disabled:opacity-50"
+        />
+      )}
+      
+      <button 
+        type="submit"
+        disabled={status === 'loading'}
+        className="px-8 py-4 bg-amber-400 text-amber-950 font-extrabold text-base rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {status === 'loading' ? 'Joining...' : 'Join Waitlist'}
+      </button>
+    </form>
   )}
-</div>
-          </div>
-        </div>
 
+  <p className="text-teal-100 text-xs font-semibold mt-4 text-center">
+    <span className="text-rose-600">No spam.</span> We promise. Just one email when we launch.
+  </p>
+
+  {/* Staff Mode Toggle Area */}
+  <div className="mt-6 text-center">
+    {!isStaffMode ? (
+      <p className="text-teal-100 text-sm font-bold">
+        Working at a library in the MHLS? 
+        <button 
+          onClick={() => setIsStaffMode(true)}
+          className="ml-2 underline decoration-2 underline-offset-4 hover:text-white transition-colors"
+        >
+          Click here for the Staff Beta →
+        </button>
+      </p>
+    ) : (
+      <div className="bg-teal-600/60 p-4 rounded-2xl border-2 border-dashed border-teal-300 transition-all animate-in fade-in zoom-in duration-300">
+        <p className="text-white text-sm font-black italic mb-2">
+          STAFF MODE ACTIVATED
+        </p>
+        <p className="text-teal-50 text-xs font-bold mb-3">
+          Sign up to help test our Director-level tools.
+        </p>
+        <button 
+          onClick={() => setIsStaffMode(false)}
+          className="text-teal-200 text-xs font-bold uppercase tracking-widest hover:text-white underline decoration-dotted"
+        >
+          ← Back to standard signup
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+</div>
         {/* Value Props (Styled like EventCards) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full px-4">
           

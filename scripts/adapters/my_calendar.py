@@ -3,7 +3,6 @@ import requests
 from bs4 import BeautifulSoup
 from typing import List, Any
 
-# Adjust these imports based on your actual project structure
 from models import StandardizedEvent 
 from base_adapter import BaseLibraryScraper 
 
