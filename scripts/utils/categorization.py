@@ -54,7 +54,7 @@ event_categories = {
         "board game", "video game", "trivia", "bingo", "chess", 
         "mahjong", "mah jong", "d&d", "dungeons and dragons", "dungeons & dragons", "scrabble", 
         "puzzle", "esports", "gaming", "nintendo switch", "tabletop", "wii", "mah jongg",
-        "pokemon", "magic: the gathering", "mah-jongg", "mah-jong", "canasta", "play bridge"
+        "pokemon", "pokémon", "magic: the gathering", "mah-jongg", "mah-jong", "canasta", "play bridge"
     ],
     "special_needs": [
         "all abilities", "sensory-friendly", "adaptive", "special needs"
@@ -78,7 +78,7 @@ event_categories = {
     "money": ["money", "budgeting", "savings", "debt", "credit score", "investing", "retirement", "401k", 
               "ira", "personal finance", "wealth", "financial planning", "tax prep", "aarp tax-aide", 
               "vita", "irs", "tax filing", "property tax", "tax exemptions", "income tax", "power of attorney", 
-              "estate planning", "wills", "trusts", "probate", "social security", "medicare", "insurance",
+              "estate planning", "probate", "social security", "medicare", "insurance",
               "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"],
     "gardening": ["garden", "plant", "gardening"],
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],

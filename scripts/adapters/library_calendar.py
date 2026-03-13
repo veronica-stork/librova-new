@@ -8,9 +8,9 @@ from urllib.parse import urljoin
 from models import StandardizedEvent
 from base_adapter import BaseLibraryScraper
 
-class PokLibAdapter(BaseLibraryScraper):
+class LibraryCalendarAdapter(BaseLibraryScraper):
     """
-    Scraper for Poughkeepsie Public Library District (LibraryCalendar platform).
+    Scraper for LibraryCalendar platform.
     """
 
     CATEGORY_MAP = {
@@ -51,7 +51,7 @@ class PokLibAdapter(BaseLibraryScraper):
         # 2 pages is usually enough for a 7 to 14-day window
         while page < 2: 
             url = f"{self.target_url}?page={page}"
-            print(f"📡 Fetching PokLib page {page}...")
+            print(f"📡 Fetching LibraryCalendar page {page}...")
             
             try:
                 response = requests.get(url, headers=headers, timeout=15)

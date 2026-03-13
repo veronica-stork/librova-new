@@ -11,7 +11,7 @@ from adapters.assabet import AssabetAdapter
 from adapters.libcal import LibCalAdapter 
 from adapters.engaged_patrons import EngagedPatronsAdapter 
 from adapters.google import GoogleCalendarAdapter
-from adapters.poklib import PokLibAdapter
+from adapters.library_calendar import LibraryCalendarAdapter
 from adapters.my_calendar import MyCalendarAdapter
 from adapters.modern_tribe import ModernTribeAdapter
 
@@ -103,8 +103,8 @@ def main():
                     calendar_id=config.get('calendar_id')
                 )
 
-            elif platform == "poklib":
-                scraper = PokLibAdapter(
+            elif platform == "library_calendar":
+                scraper = LibraryCalendarAdapter(
                     library_id=lib_id,
                     target_url=config.get('base_url')
                 )
