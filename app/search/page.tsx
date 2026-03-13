@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import EventCard, { LibraryEvent } from '../../components/EventCard';
 import FilterBar from '../../components/FilterBar';
 import CategoryFilters from '../../components/CategoryFilters';
+import { Lateef } from 'next/font/google';
 
 const CATEGORIES = [
   { id: 1, name: 'Storytime' },
@@ -105,6 +106,24 @@ export default function LibrovaHome() {
     }
   };
 
+const handleReset = () => {
+  // 1. Clear the filters but NOT the location
+  setSelectedCategories([]); 
+  setSelectedLibrary(null); 
+  setSearchQuery("");
+
+  // 2. Explicitly use the current userLocation if it exists
+  const lat = userLocation?.lat || null;
+  const lng = userLocation?.lng || null;
+
+  // 3. Trigger the fetch
+  // We pass '[]' for categories and 'null' for the library to force the reset
+  fetchEvents(lat, lng, [], radius, null, sortBy);
+
+  // 4. Scroll to top so they see the fresh results
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
   const handleLibraryClick = (name: string) => {
     setSelectedLibrary(name);
     fetchEvents(userLocation?.lat, userLocation?.lng, selectedCategories, radius, name);
@@ -187,12 +206,19 @@ export default function LibrovaHome() {
       <nav className="bg-white border-b-4 border-teal-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-20 items-center">
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-500 rounded-2xl rotate-3 flex items-center justify-center shadow-sm">
-                <span className="text-white font-extrabold text-2xl -rotate-3">L</span>
-              </div>
-              <h1 className="text-3xl font-extrabold text-teal-900 tracking-tight">Librova</h1>
-            </div>
+           <div 
+  className="flex-shrink-0 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" 
+  onClick={handleReset}
+  role="button"
+  tabIndex={0}
+  onKeyDown={(e) => e.key === 'Enter' && handleReset()}
+  aria-label="Reset filters and go home"
+>
+  <div className="w-10 h-10 bg-rose-500 rounded-2xl rotate-3 flex items-center justify-center shadow-sm">
+    <span className="text-white font-extrabold text-2xl -rotate-3">L</span>
+  </div>
+  <h1 className="text-3xl font-extrabold text-teal-900 tracking-tight">Librova</h1>
+</div>
             <div className="flex items-center space-x-8">
               <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Explore</span>
               <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Libraries</span>
