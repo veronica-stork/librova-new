@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import EventCard, { LibraryEvent } from '../../components/EventCard';
 import FilterBar from '../../components/FilterBar';
 import CategoryFilters from '../../components/CategoryFilters';
-import { Lateef } from 'next/font/google';
+import EventFeed from '../../components/EventFeed';
+import {LibraryDirectory} from '../../components/LibraryDirectory';
 
 const CATEGORIES = [
   { id: 1, name: 'Storytime' },
@@ -45,6 +46,8 @@ export default function LibrovaHome() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'time' | 'distance'>('time');
+  const [currentView, setCurrentView] = useState<'feed' | 'directory'>('feed');
+  const [allLibraries, setAllLibraries] = useState<any[]>([]); 
 
   const fetchEvents = async (
     lat?: number | null, 
@@ -97,6 +100,22 @@ export default function LibrovaHome() {
     }
   };
 
+  const fetchLibraries = async () => {
+  try {
+    const response = await fetch('/api/libraries');
+    if (!response.ok) throw new Error('Failed to fetch libraries');
+    const data = await response.json();
+    setAllLibraries(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+  const handleClearLibrary = () => {
+  setSelectedLibrary(null);
+  fetchEvents(userLocation?.lat, userLocation?.lng, selectedCategories, radius, null);
+  };
+
   const handleRadiusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRadius = parseInt(e.target.value, 10);
     setRadius(newRadius);
@@ -136,6 +155,7 @@ const handleReset = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchLibraries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -220,19 +240,28 @@ const handleReset = () => {
   <h1 className="text-3xl font-extrabold text-teal-900 tracking-tight">Librova</h1>
 </div>
             <div className="flex items-center space-x-8">
-              <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Explore</span>
-              <span className="text-base font-bold text-teal-700 hover:text-rose-500 cursor-pointer transition-colors hidden sm:block">Libraries</span>
-              <div className="sm:hidden cursor-pointer text-teal-700 bg-teal-100 p-2 rounded-xl">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </div>
+<nav className="flex gap-4">
+  <button 
+    onClick={() => setCurrentView('feed')}
+    className={`font-semibold cursor-pointer ${currentView === 'feed' ? 'text-rose-500' : 'text-slate-500'}`}
+  >
+    Explore
+  </button>
+  <button 
+    onClick={() => setCurrentView('directory')}
+    className={`font-semibold cursor-pointer ${currentView === 'directory' ? 'text-rose-500' : 'text-slate-500'}`}
+  >
+    Libraries
+  </button>
+</nav>              
             </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+  {currentView === 'feed' ? (
+    <>
         
         {/* HERO & SEARCH SECTION */}
         <section className="bg-teal-500 rounded-[2rem] shadow-[0_8px_0_rgb(15,118,110)] border-4 border-teal-700 p-8 md:p-12 mb-14 relative overflow-visible">
@@ -324,41 +353,23 @@ const handleReset = () => {
           </div>
         </section>
 
-        {/* RESULTS SECTION */}
-        <section>
-          <div className="flex justify-between items-end mb-6 px-2">
-            <h3 className="text-2xl font-extrabold text-teal-900">Upcoming Events</h3>
-            
-            {selectedLibrary && (
-              <div className="flex items-center gap-2 bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-bold text-sm">
-                Filtering: {selectedLibrary}
-                <button onClick={() => {
-                  setSelectedLibrary(null);
-                  fetchEvents(userLocation?.lat, userLocation?.lng, selectedCategories, radius, null);
-                }}>
-                  ✕
-                </button>
-              </div>
-            )}
-            
-            <span className="text-sm font-bold text-teal-600 bg-teal-100 px-3 py-1 rounded-full">
-              {events.length} results
-            </span>
-          </div>
+{/* Events view */}
+<EventFeed 
+  events={events}
+  selectedLibrary={selectedLibrary}
+  selectedCategories={selectedCategories}
+  onClearLibrary={handleClearLibrary}
+  onLibraryClick={handleLibraryClick}
+  onCategoryClick={toggleCategory}
+/>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <EventCard 
-                key={event.id} 
-                event={event} 
-                selectedCategories={selectedCategories}
-                onLibraryClick={() => handleLibraryClick(event.libraryName)}
-                onCategoryClick={(id) => toggleCategory(id)}
-              />
-            ))}
-          </div>
-        </section>
-
+</>
+  ) : (
+    // Library directory view
+    <>
+    <LibraryDirectory libraries={allLibraries} /> 
+    </>
+  )}
       </main>
     </div>
   );
