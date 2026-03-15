@@ -13,6 +13,7 @@ class StandardizedEvent:
     end_time: Optional[datetime] = None
     event_url: Optional[str] = None
     category_ids: Optional[List[int]] = None
+    primary_category_id: Optional[int] = None
 
     def to_dict(self) -> dict:
         """

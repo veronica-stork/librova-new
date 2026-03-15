@@ -5,7 +5,7 @@ import EventCard, { LibraryEvent } from '../../components/EventCard';
 import FilterBar from '../../components/FilterBar';
 import CategoryFilters from '../../components/CategoryFilters';
 import EventFeed from '../../components/EventFeed';
-import {LibraryDirectory} from '../../components/LibraryDirectory';
+import {Library, LibraryDirectory} from '../../components/LibraryDirectory';
 
 const CATEGORIES = [
   { id: 1, name: 'Storytime' },
@@ -47,7 +47,7 @@ export default function LibrovaHome() {
   const [selectedLibrary, setSelectedLibrary] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'time' | 'distance'>('time');
   const [currentView, setCurrentView] = useState<'feed' | 'directory'>('feed');
-  const [allLibraries, setAllLibraries] = useState<any[]>([]); 
+  const [allLibraries, setAllLibraries] = useState<Library[]>([]); 
 
   const fetchEvents = async (
     lat?: number | null, 

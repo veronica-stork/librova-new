@@ -24,6 +24,7 @@ export async function POST(request: Request) {
       end_time = null, 
       event_url = null,
       category_ids = [], 
+      primary_category_id = null
     } = event;
 
     // 5. Explicit Validation
@@ -38,10 +39,10 @@ export async function POST(request: Request) {
 // 6. Insert into PostgreSQL with UPSERT logic
 const result = await sql`
   INSERT INTO events (
-    library_id, title, description, start_time, end_time, event_url, category_ids
+    library_id, title, description, start_time, end_time, event_url, category_ids, primary_category_id
   )
   VALUES (
-    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, ${category_ids}::int[]
+    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, ${category_ids}::int[], ${primary_category_id}
   )
   ON CONFLICT (library_id, title, start_time) 
   DO UPDATE SET 

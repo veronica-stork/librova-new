@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, ExternalLink, Info, CalendarX } from 'lucide-react';
 
-interface Library {
+export interface Library {
   id: number;
   name: string;
   address: string;
@@ -41,13 +41,13 @@ export const LibraryDirectory: React.FC<LibraryDirectoryProps> = ({ libraries })
                 <span>{lib.address}</span>
               </div>
 
-              {/* Status Badge */}
+              {/* Status Badge
               {lib.calendar_status === 'inactive' && (
                 <div className="flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-md mb-4 border border-amber-100">
                   <CalendarX className="w-3.5 h-3.5" />
                   Events posted on Facebook
                 </div>
-              )}
+              )} */}
             </div>
 
             <div className="pt-4 mt-auto border-t border-slate-100 flex gap-3">

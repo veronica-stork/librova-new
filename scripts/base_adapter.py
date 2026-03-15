@@ -2,8 +2,9 @@ import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
-from utils.categorization import extract_category_ids
+from utils.categorization import extract_category_ids, CATEGORY_ID_MAP
 from utils.filtering import is_public_event
+
 
 class BaseLibraryScraper:
 
@@ -31,6 +32,8 @@ class BaseLibraryScraper:
             if is_public_event(event.title, event.description):
                 if not event.category_ids:
                     event.category_ids = extract_category_ids(event.title, event.description)
+                event.primary_category_id = self.determine_primary_category(event.category_ids, event.title)
+                
                 public_events.append(event)
             else:
                 print(f"🚫 Blocked: {event.title}")
@@ -85,6 +88,36 @@ class BaseLibraryScraper:
         
         return text.strip()
     
+    def determine_primary_category(self, category_ids: List[int], title: str) -> Optional[int]:
+        """
+        Calculates the most prominent category for an event to aid in UI masking 
+        and primary tagging.
+        """
+        if not category_ids:
+            return None
+        
+        title_lower = title.lower()
+        
+        # 1. Title Match (Highest Signal)
+        for cat_id in category_ids:
+            category_name = CATEGORY_ID_MAP.get(cat_id, "").lower()
+            if category_name and category_name in title_lower:
+                return cat_id
+
+        # 2. Specificity vs. Breadth
+        # Broad tags: 8(Teens), 9(Adults), 10(Family), 11(Children), 12(Early Childhood)
+        broad_tags = [8, 9, 10, 11, 12] 
+        specific_tags = [cat_id for cat_id in category_ids if cat_id not in broad_tags]
+        
+        # If there's exactly one specific tag (like Movies, STEM, or Crafts), it wins
+        if len(specific_tags) == 1:
+            return specific_tags[0]
+            
+        # 3. Default fallback
+        # If it's a mix of specific tags (Teen Time: movies + games), fall back to the first broad tag
+        return category_ids[0]
+    
+
     def parse_datetime(self, date_val: str, time_val: Optional[str] = None, is_all_day: bool = False) -> Optional[datetime]:
         if not date_val:
             return None

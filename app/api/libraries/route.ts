@@ -15,7 +15,8 @@ export async function GET() {
         address, 
         calendar_status,
         ST_Y(location::geometry) AS lat,
-        ST_X(location::geometry) AS lng
+        ST_X(location::geometry) AS lng,
+        website_url
       FROM libraries
       ORDER BY name ASC;
     `;
