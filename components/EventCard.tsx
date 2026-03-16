@@ -1,14 +1,5 @@
 import React from 'react';
-
-// 1. Map the database IDs back to UI labels
-export const CATEGORY_MAP: Record<number, string> = {
-  1: "Storytime", 2: "Crafts", 3: "Book Talks", 4: "Games", 
-  5: "History", 6: "Health", 7: "STEM", 8: "Teens", 
-  9: "Adults", 10: "Family", 11: "Children", 
-  12: "Early Childhood", 13: "Tech Help", 14: "Special Needs", 15: "Languages", 
-  16: "Music", 17: "Money", 18: "Gardening", 19: "Cooking", 20: "Literacy", 21: "Movies", 22: "virtual", 
-  23: "seniors", 24: "lgbtq"
-};
+import { CATEGORY_MAP } from '@/lib/categoryConstants';
 
 // Define the shape of your event JSON data
 export interface LibraryEvent {
@@ -21,11 +12,12 @@ export interface LibraryEvent {
   sourceUrl: string;
   category_ids?: number[]; 
   distance?: number | null;
+  primary_category_id?: number | null;
 }
 
 interface EventCardProps {
   event: LibraryEvent;
-  selectedCategories: number[]; // 👈 Add this
+  selectedCategories: number[]; 
   onLibraryClick?: () => void;
   onCategoryClick?: (id: number) => void;
 }
@@ -33,6 +25,19 @@ interface EventCardProps {
 export default function EventCard({ event, selectedCategories, onLibraryClick, onCategoryClick }: EventCardProps) {
   const categories = event.category_ids || [];
   const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
+
+  // 1. Check if the primary focus is a Movie
+  const isMovie = event.primary_category_id === 21;
+
+  // 2. Mask the title if true
+  const displayedTitle = isMovie 
+    ? "Movie Showing" 
+    : event.title;
+
+  // 3. Append the legal disclaimer if true
+  const displayedDescription = isMovie 
+    ? `🎥 ${event.description}\n\n(Licensing rules prevent us from naming this film here—click to see what's playing!)`
+    : event.description;
 
   return (
     <div className="bg-white rounded-4xl border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] hover:-translate-y-1 hover:shadow-[0_8px_0_rgb(241,245,249)] transition-all flex flex-col h-full overflow-hidden text-left group">
@@ -81,7 +86,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
 
         {/* Title & Clickable Library Name */}
         <h4 className="text-xl font-extrabold text-slate-800 mb-1 leading-tight">
-          {event.title}
+          {displayedTitle}
         </h4>
         
         <div className="flex items-center text-slate-500 font-semibold text-sm mb-4">
@@ -89,7 +94,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          {/* Added the onClick we discussed earlier! */}
+          
           <button 
             onClick={(e) => {
               e.preventDefault();
@@ -104,11 +109,11 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
         </div>
 
         {/* Description Snippet */}
-        <p className="text-slate-600 font-medium text-sm line-clamp-3 mb-6 flex-grow">
-          {event.description}
+        <p className="text-slate-600 font-medium text-sm line-clamp-3 mb-6 flex-grow whitespace-pre-line">
+          {displayedDescription} 
         </p>
 
-        {/* Action Button (Simplified for this snippet) */}
+        {/* Action Button */}
         <a 
           href={hasValidUrl ? event.sourceUrl : "#"} 
           className={`mt-auto block text-center px-6 py-3 font-extrabold text-sm rounded-xl border-b-4 transition-all ${
@@ -117,7 +122,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
             : "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed"
           }`}
         >
-          {hasValidUrl ? "More Info" : "No Link Available"}
+          {isMovie ? "See What's Playing" : (hasValidUrl ? "More Info" : "No Link Available")} {/* <-- CHANGED */}
         </a>
       </div>
     </div>

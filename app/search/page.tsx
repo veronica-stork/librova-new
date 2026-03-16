@@ -6,35 +6,7 @@ import FilterBar from '../../components/FilterBar';
 import CategoryFilters from '../../components/CategoryFilters';
 import EventFeed from '../../components/EventFeed';
 import {Library, LibraryDirectory} from '../../components/LibraryDirectory';
-
-const CATEGORIES = [
-  { id: 1, name: 'Storytime' },
-  { id: 2, name: 'Crafts' },
-  { id: 3, name: 'Book talks' },
-  { id: 4, name: 'Games' },
-  { id: 5, name: 'History' },
-  { id: 6, name: 'Health' },
-  { id: 7, name: 'STEM' },
-  { id: 8, name: 'Teens' },
-  { id: 9, name: 'Adults' },
-  { id: 10, name: 'Family' },
-  { id: 11, name: 'Children' },
-  { id: 12, name: 'Early Childhood'},
-  { id: 13, name: 'Tech Help'},
-  { id: 14, name: 'Special Needs'},
-  { id: 15, name: 'ESL/Language'},
-  { id: 16, name: 'Music'},
-  { id: 17, name: 'Money'},
-  { id: 18, name: 'Gardening'},
-  { id: 19, name: 'Cooking'},
-  { id: 20, name: 'Literacy'},
-  { id: 21, name: 'Movies'},
-  { id: 22, name: 'Virtual'},
-  { id: 23, name: 'Seniors'},
-  { id: 24, name: 'LGBTQ'}
-];
-
-const QUICK_FILTER_IDS = [9, 10, 8, 12]; 
+import { CATEGORIES, QUICK_FILTER_IDS } from '../../lib/categoryConstants';
 
 export default function LibrovaHome() {
   const [events, setEvents] = useState<LibraryEvent[]>([]);

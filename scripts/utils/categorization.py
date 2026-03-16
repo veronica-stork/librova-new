@@ -1,6 +1,6 @@
 import re
-from typing import List
 
+# IMPORTANT: If you change these IDs, you MUST update lib/constants.ts and the Neon database.
 CATEGORY_ID_MAP = {
     "storytime": 1, "crafts": 2, "book_talks": 3, "games": 4, 
     "history": 5, "health": 6, "stem": 7, "teens": 8, 
@@ -83,7 +83,7 @@ event_categories = {
     "gardening": ["garden", "plant", "gardening"],
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
     "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"],
-    "movies": ["movie", "movies", "film", "cinema"],
+    "movies": ["movie", "movies", "film", "cinema", "matinee"],
     "virtual": ["zoom", "online event", "virtual event", "virtual"],
     "seniors": ["seniors", "65+", "older adults"],
     "lgbtq": ["lgbtq", "lgbtqa", "queer"]

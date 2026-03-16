@@ -2,8 +2,10 @@ import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
-from utils.categorization import extract_category_ids, CATEGORY_ID_MAP
+from utils.categorization import extract_category_ids, event_categories, CATEGORY_ID_MAP
 from utils.filtering import is_public_event
+
+ID_TO_CAT_NAME = {v: k for k, v in CATEGORY_ID_MAP.items()}
 
 
 class BaseLibraryScraper:
@@ -97,13 +99,16 @@ class BaseLibraryScraper:
             return None
         
         title_lower = title.lower()
-        
-        # 1. Title Match (Highest Signal)
-        for cat_id in category_ids:
-            category_name = CATEGORY_ID_MAP.get(cat_id, "").lower()
-            if category_name and category_name in title_lower:
-                return cat_id
 
+        for cat_id in category_ids:
+            cat_name = ID_TO_CAT_NAME.get(cat_id)
+
+            if cat_name:
+                keywords = event_categories.get(cat_name, [cat_name])
+            
+                if any(keyword in title_lower for keyword in keywords):
+                        return cat_id
+            
         # 2. Specificity vs. Breadth
         # Broad tags: 8(Teens), 9(Adults), 10(Family), 11(Children), 12(Early Childhood)
         broad_tags = [8, 9, 10, 11, 12] 
