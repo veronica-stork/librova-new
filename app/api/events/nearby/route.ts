@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   // Query WITH geographic filtering
   events = await sql`
     SELECT 
-      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
+      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, e.primary_category_id,
       l.name as library_name, l.address,
       ST_Distance(l.location::geography, ST_SetSRID(ST_Point(${lng}, ${lat}), 4326)::geography) / 1609.34 as distance_miles
     FROM events e
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
   // Query WITHOUT geographic filtering (All system events)
   events = await sql`
     SELECT 
-      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, 
+      e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, e.primary_category_id,
       l.name as library_name, l.address,
       NULL as distance_miles
     FROM events e
@@ -94,6 +94,7 @@ const formattedEvents = events.map(event => {
     description: event.description || "No description provided.",
     sourceUrl: event.event_url || "#",
     category_ids: event.category_ids || [],
+    primary_category_id: event.primary_category_id || null,
     distance: event.distance_miles !== null ? Math.round(event.distance_miles * 10) / 10 : null 
   };
 });

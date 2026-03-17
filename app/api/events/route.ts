@@ -48,7 +48,8 @@ const result = await sql`
   DO UPDATE SET 
     category_ids = EXCLUDED.category_ids,
     description = EXCLUDED.description,
-    event_url = EXCLUDED.event_url
+    event_url = EXCLUDED.event_url,
+    primary_category_id = EXCLUDED.primary_category_id
   RETURNING *;
 `;
 

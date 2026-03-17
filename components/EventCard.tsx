@@ -26,17 +26,19 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
   const categories = event.category_ids || [];
   const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
 
+  console.log("Event category id: " + typeof event.primary_category_id, event.primary_category_id);
+
   // 1. Check if the primary focus is a Movie
   const isMovie = event.primary_category_id === 21;
 
   // 2. Mask the title if true
   const displayedTitle = isMovie 
-    ? "Movie Showing" 
+    ? "🎬 Movie Showing" 
     : event.title;
 
   // 3. Append the legal disclaimer if true
   const displayedDescription = isMovie 
-    ? `🎥 ${event.description}\n\n(Licensing rules prevent us from naming this film here—click to see what's playing!)`
+    ? `🎥 Due to potential licensing agreements, we are not showing the movie title here—click to see what's playing!)`
     : event.description;
 
   return (
