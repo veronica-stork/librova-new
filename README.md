@@ -34,11 +34,14 @@ Librova uses automated library calendar adapters to pull event data from dispara
 
 ```mermaid
 graph TD
-    subgraph "External Sources"
-        A[Assabet Calendars]
-        B[LibCal Systems]
-        C[WordPress/Custom HTML]
-        D[Google Calendar API]
+    subgraph "External Calendars"
+        A[Assabet]
+        B[Engaged Patrons]
+        C[LibCal]
+        D[Google (API)]
+        E[Library Calendar]
+        F[Modern Tribe]
+        G[My Calendar]
     end
 
     subgraph "Scraper Engine (Python)"
@@ -92,34 +95,22 @@ pip install -r requirements.txt
 To set up your database, do the following:
 1. Create a PostgreSQL database.
 2. Run the provided `database/schema.sql` file to create the `events`, `libraries`, and `categories` tables.
-3. Insert seed data:
-```sql
-INSERT INTO libraries (name, scraper_config) 
-VALUES ('Red Hook Public Library', '{"platform": "assabet", "base_url": "https://redhooklibrary.assabetinteractive.com/calendar"}');
-```
+3. Insert seed data (either your own, or the samples included in `database/schema.sql`)
 
 #### Environment Variables
 Duplicate the `env.example` file and rename it to `env.local`. Fill in the following keys:
 - `DATABASE_URL`
-- `SCRAPER_API_KEY`
-- [SOMETHING ELSE HERE]
+- `SCRAPER_API_KEY`: To interact with your own API. You create this.
+- `VERCEL_OIDC_TOKEN`: If you are deploying to Vercel
+- `GOOGLE_API_KEY`: If you are pulling events from any Google calendars, you will need an API key. If you do not have a Google API key yet, [learn how to get one here](https://developers.google.com/workspace/guides/get-started).
 
 #### Spin it up!
 1. Start the Next.js server:
 ```bash
 npm run dev
 ```
-2. Open a second terminal window, ensure the Python virtual environment (venv) is activated, and run the scraper:
+2. Open a second terminal window, ensure the Python virtual environment (venv) is activated using `source venv/bin/activate`, and run the scraper:
 ```bash
 python main.py
 ```
 3. Navigate to `localhost:3000` to see your app
-
-### 6. Roadmap 
-
-- Search & Discovery: Zip code geocoding and radius sliders.
-- Operational Scalability: Moving keywords to the database.
-- Monetization: Community Partner tiers and "Featured" placements.
-
-### 7. Local Impact 
-(The "Why")Mention the Mid-Hudson Library System specifically.Highlight the goal of supporting the 66 libraries across Dutchess, Ulster, Columbia, Greene, and Putnam counties.
