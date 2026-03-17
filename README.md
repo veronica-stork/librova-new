@@ -28,9 +28,9 @@ Librova uses automated library calendar adapters to pull event data from dispara
 
 ### 3. Architecture & Data Flow
 
-**The Adapter Factory:** Explain the modular Python system. How a BaseScraper class allows for quick deployment of new library systems (Assabet, LibCal, etc.).
-**Spatial Logic:** Mention how you use ST_DWithin to calculate real-time distance from user coordinates.
-**Categorization Engine:** Describe the heuristic keyword-mapping system that automatically tags events for the UI.
+**The Adapter Factory:** Explain the modular Python system. How a BaseScraper class allows for quick deployment of new library systems (Assabet, LibCal, etc.).  
+**Spatial Logic:** Mention how you use ST_DWithin to calculate real-time distance from user coordinates.  
+**Categorization Engine:** Describe the heuristic keyword-mapping system that automatically tags events for the UI.  
 
 ```mermaid
 graph TD
@@ -38,7 +38,7 @@ graph TD
         A[Assabet]
         B[Engaged Patrons]
         C[LibCal]
-        D[Google (API)]
+        D[Google]
         E[Library Calendar]
         F[Modern Tribe]
         G[My Calendar]
