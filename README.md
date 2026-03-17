@@ -45,26 +45,26 @@ graph TD
     end
 
     subgraph "Scraper Engine (Python)"
-        D[Base Scraper Class]
-        E[Adapter Factory]
-        F[Keyword Heuristics Engine]
+        H[Base Scraper Class]
+        I[Adapter Factory]
+        J[Keyword Heuristics Engine]
     end
 
     subgraph "Database (Neon/PostgreSQL)"
-        G[(PostGIS Spatial DB)]
+        K[(PostGIS Spatial DB)]
     end
 
     subgraph "Application (Next.js)"
-        H[Serverless API Routes]
-        I[React Frontend UI]
+        L[Serverless API Routes]
+        M[React Frontend UI]
     end
 
-    A & B & C --> E
-    E --> D
-    D --> F
-    F -- "UPSERT Logic" --> G
-    G <--> H
-    H <--> I
+    A & B & C & D & E & F & G--> H
+    H --> I
+    I --> J
+    J -- "UPSERT Logic" --> K
+    K <--> L
+    L <--> M
 ```
 ### 4. Local Development/Quickstart
 
@@ -110,7 +110,9 @@ Duplicate the `env.example` file and rename it to `env.local`. Fill in the follo
 npm run dev
 ```
 2. Open a second terminal window, ensure the Python virtual environment (venv) is activated using `source venv/bin/activate`, and run the scraper:
+
 ```bash
 python main.py
 ```
+
 3. Navigate to `localhost:3000` to see your app
