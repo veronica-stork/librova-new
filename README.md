@@ -39,32 +39,30 @@ graph TD
         B[Engaged Patrons]
         C[LibCal]
         D[Google]
-        E[Library Calendar]
-        F[Modern Tribe]
-        G[My Calendar]
+        E[Wordpress Plugin Calendars]
     end
 
     subgraph "Scraper Engine (Python)"
-        H[Base Scraper Class]
-        I[Adapter Factory]
-        J[Keyword Heuristics Engine]
+        F[Base Scraper Class]
+        G[Adapter Factory]
+        H[Keyword Heuristics Engine]
     end
 
     subgraph "Database (Neon/PostgreSQL)"
-        K[(PostGIS Spatial DB)]
+        I[(PostGIS Spatial DB)]
     end
 
     subgraph "Application (Next.js)"
-        L[Serverless API Routes]
-        M[React Frontend UI]
+        J[Serverless API Routes]
+        K[React Frontend UI]
     end
 
-    A & B & C & D & E & F & G--> H
-    H --> I
-    I --> J
-    J -- "UPSERT Logic" --> K
-    K <--> L
-    L <--> M
+    A & B & C & D & E --> F
+    F --> G
+    G --> H
+    H -- "UPSERT Logic" --> I
+    I <--> J
+    J <--> K
 ```
 ### 4. Local Development/Quickstart
 
