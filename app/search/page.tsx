@@ -6,8 +6,9 @@ import { LibraryEvent } from '../../components/EventCard';
 import EventFeed from '../../components/EventFeed';
 import Hero from '@/components/Hero';
 import { Library, LibraryDirectory } from '../../components/LibraryDirectory';
+import { Suspense } from 'react';
 
-export default function LibrovaHome() {
+function LibrovaHomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -195,5 +196,17 @@ export default function LibrovaHome() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function LibrovaHome() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+      </div>
+    }>
+      <LibrovaHomeContent />
+    </Suspense>
   );
 }
