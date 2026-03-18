@@ -7,7 +7,7 @@ CATEGORY_ID_MAP = {
     "adults": 9, "family": 10, "children": 11,
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
-    "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24
+    "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24, "book_clubs": 25
 }
 
 event_categories = {
@@ -37,7 +37,7 @@ event_categories = {
         "python", "physics", "astronomy", "outer space", "computer science", "minecraft"
     ],
     "tech_help": [
-        "tech help", "computer help", "smart phone", "ipad", 
+        "tech help", "computer help", "smart phone", "iphone help", 
         "tablet", "device advice", "tech tutor", "software help", "digital literacy", "technology help", 
         "technology questions", "tech questions"
     ],
@@ -46,9 +46,11 @@ event_categories = {
                "mental health", "grief", "alzheimer's", "dementia", "depression", "support group", 
                "cardio", "strength training", "aerobics", "narcan", "addiction", "cpr", "first aid"],
     "book_talks": [
-        "book club", "book discussion", "author visit", "book talk", 
-        "author talk", "literature", "reading group", "chapter chat", 
-        "meet the author", "book review", "mystery book club", "page turner"
+        "author visit", "book talk", "author talk",
+        "meet the author"
+    ],
+    "book_clubs": [
+        "book club", "book discussion", "reading group" 
     ],
     "games": [
         "board game", "video game", "trivia", "bingo", "chess", 
@@ -65,9 +67,9 @@ event_categories = {
         "learn chinese", "learn portuguese", "learn italian", "practice spanish", "practice italian",
         "practice german", "practice chinese", "practice portuguese", "practice french", "french conversation",
         "german conversation", "chinese conversation", "portuguese conversation", "spanish conversation", 
-        "italian conversation"
+        "italian conversation", "bilingual"
     ],
-    "teens": ["teen", "youth", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
+    "teens": ["teen", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "18+", "adults only", "retirement", "medicare"],
     "children": ["kid", "child", "baby", "babies", "elementary", "tween", "grades k-5"],
     "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"],
@@ -86,7 +88,7 @@ event_categories = {
     "movies": ["movie", "movies", "film", "cinema", "matinee"],
     "virtual": ["zoom", "online event", "virtual event", "virtual"],
     "seniors": ["seniors", "65+", "older adults"],
-    "lgbtq": ["lgbtq", "lgbtqa", "queer"]
+    "lgbtq": ["lgbtq", "lgbtqa", "queer", "lgbtqia", "lgbtqia+"]
 }
 
 COMPILED_RULES = {}
@@ -113,7 +115,8 @@ for category, keywords in event_categories.items():
 HIERARCHY_RULES = {
     1: [2, 16], # Storytime consumes: Crafts, Music
     12: [11, 10], # Early childhood consumes: Children
-    13: [7] # Tech help consumes STEM
+    13: [7], # Tech help consumes STEM
+    10: [9] # Family consumes Adults
 }
 
 def extract_category_ids(title: str, description: str) -> list[int]:
@@ -157,7 +160,10 @@ def extract_category_ids(title: str, description: str) -> list[int]:
         "children's room",
         "kids room",
         "childrens room",
-        "teen room"
+        "teen room",
+        # Audience vs. Presenter confusion
+        "teen tech help",
+        "teen helpers"
     ]
 
     for phrase in false_positive_phrases:
