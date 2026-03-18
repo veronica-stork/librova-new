@@ -13,6 +13,8 @@ EXCLUSION_KEYWORDS = [
     "baby sprinkle",
     "birthday party",
     "private meeting",
+    "private",
+    "private party"
     "staff only",
     "closed for",
     "cancelled",
