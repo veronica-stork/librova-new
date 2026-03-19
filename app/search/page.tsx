@@ -30,8 +30,8 @@ function LibrovaHomeContent() {
   const urlSort = searchParams.get('sort') || 'time';
   const urlDate = searchParams.get('date') || 'today';
   
-  // NOTE: If you add Categories to the URL later, extract them here:
-  // const urlCategories = searchParams.get('categories') || '';
+  const urlCategories = searchParams.get('categories') || '';
+  const urlLibrary = searchParams.get('library') || '';
 
   const fetchEvents = async () => {
     setIsLoading(true);
@@ -48,6 +48,14 @@ function LibrovaHomeContent() {
       // 2. Keyword Search
       if (urlQ) {
         params.append('q', urlQ);
+      }
+
+      if (urlCategories) {
+        params.append('categories', urlCategories);
+      }
+
+      if (urlLibrary) {
+        params.append('library', urlLibrary);
       }
 
       // 3. Date Filter
@@ -104,7 +112,7 @@ function LibrovaHomeContent() {
   useEffect(() => {
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlLat, urlLng, urlQ, urlLocationQuery, urlRadius, urlSort, urlDate]);
+  }, [urlLat, urlLng, urlQ, urlLocationQuery, urlRadius, urlSort, urlDate, urlLibrary, urlCategories]);
 
   // Fetch libraries once on mount
   useEffect(() => {

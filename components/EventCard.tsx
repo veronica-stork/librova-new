@@ -18,7 +18,7 @@ export interface LibraryEvent {
 interface EventCardProps {
   event: LibraryEvent;
   selectedCategories: number[]; 
-  onLibraryClick?: () => void;
+  onLibraryClick?: (name: string) => void;
   onCategoryClick: (id: number) => void;
 }
 
@@ -42,7 +42,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
   return (
     <div className="bg-white rounded-4xl border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] hover:-translate-y-1 hover:shadow-[0_8px_0_rgb(241,245,249)] transition-all flex flex-col h-full overflow-hidden text-left group">
       
-      {/* 1. New Category Bar at the Very Top */}
+      {/* Category bar */}
       {categories.length > 0 && (
         <div className="px-6 pt-5 pb-2 flex flex-wrap gap-2">
           {categories.map((id, index) => {
@@ -56,7 +56,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
               <button 
                 key={id} 
                 onClick={(e) => {
-                  e.preventDefault();
+                  e.stopPropagation();
                   onCategoryClick(id);
                 }}
         className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-lg border-2 shadow-sm transition-all active:scale-95 ${
