@@ -56,7 +56,8 @@ event_categories = {
         "board game", "video game", "trivia", "bingo", "chess", 
         "mahjong", "mah jong", "d&d", "dungeons and dragons", "dungeons & dragons", "scrabble", 
         "puzzle", "esports", "gaming", "nintendo switch", "tabletop", "wii", "mah jongg",
-        "pokemon", "pokémon", "magic: the gathering", "mah-jongg", "mah-jong", "canasta", "play bridge"
+        "pokemon", "pokémon", "magic: the gathering", "mah-jongg", "mah-jong", "canasta", "play bridge",
+        "bridge club"
     ],
     "special_needs": [
         "all abilities", "sensory-friendly", "adaptive", "special needs"

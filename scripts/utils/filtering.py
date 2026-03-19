@@ -22,6 +22,7 @@ EXCLUSION_KEYWORDS = [
     "postponed",
     "rescheduled",
     "room reserved",
+    "room use",
     "board meeting",
     "board of trustees",
     "meeting of the board of trustees",

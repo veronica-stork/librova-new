@@ -18,7 +18,7 @@ export interface LibraryEvent {
 interface EventCardProps {
   event: LibraryEvent;
   selectedCategories: number[]; 
-  onLibraryClick?: (name: string) => void;
+  onLibraryClick: (name: string) => void;
   onCategoryClick: (id: number) => void;
 }
 
@@ -98,7 +98,8 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
           <button 
             onClick={(e) => {
               e.preventDefault();
-              if (onLibraryClick) onLibraryClick();
+              e.stopPropagation();
+              onLibraryClick(event.libraryName);
             }}
             className="text-left hover:text-rose-500 hover:underline transition-colors truncate"          >
             {event.libraryName}

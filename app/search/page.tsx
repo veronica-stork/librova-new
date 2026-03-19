@@ -126,6 +126,23 @@ function LibrovaHomeContent() {
     window.location.href = '/search'; 
   };
 
+  const handleLibraryClick = (libraryName: string) => {
+  const params = new URLSearchParams(searchParams.toString());
+  
+  // Update the 'library' parameter
+  params.set('library', libraryName);
+  
+  // Update the URL. We use { scroll: false } to prevent the page 
+  // from jumping to the top if they click a library at the bottom of the feed.
+  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+};
+
+const handleClearLibrary = () => {
+  const params = new URLSearchParams(searchParams.toString());
+  params.delete('library');
+  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+};
+
   const handleCategoryClick = (categoryId: number) => {
   const params = new URLSearchParams(searchParams.toString());
   const currentCats = searchParams.get('categories')?.split(',').filter(Boolean) || [];
@@ -214,7 +231,7 @@ function LibrovaHomeContent() {
                   selectedLibrary={null} 
                   selectedCategories={searchParams.get('categories')?.split(',').map(Number).filter(Boolean) || []} 
                   onClearLibrary={() => {}}
-                  onLibraryClick={() => {}}
+                  onLibraryClick={handleLibraryClick}
                   onCategoryClick={handleCategoryClick}
                 />
               )}

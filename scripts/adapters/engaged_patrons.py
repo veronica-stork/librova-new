@@ -148,14 +148,19 @@ class EngagedPatronsAdapter(BaseLibraryScraper):
 
                 # Extract event URL
                 event_url = None
+                base_domain = "https://engagedpatrons.org/"
+
                 graphic_div = wrapper.find('div', class_='LEGraphicDiv')
                 if graphic_div:
                     a_tag = graphic_div.find('a', href=True)
                     if a_tag:
                         # Ensure it's a fully qualified URL
-                        base_domain = "https://engagedpatrons.org/"
                         event_url = urljoin(base_domain, a_tag['href'])
-
+                else:
+                    a_tag = title_node.find('a', href=True)
+                    if a_tag:
+                        event_url = urljoin(base_domain, a_tag['href'])
+                
                 event = StandardizedEvent(
                     title=title,
                     start_time=dt_obj,
