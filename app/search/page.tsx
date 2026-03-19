@@ -115,8 +115,31 @@ function LibrovaHomeContent() {
   const handleReset = () => {
     setCurrentView('feed');
     // The easiest way to reset is just push the user back to the clean root URL
-    window.location.href = '/'; 
+    window.location.href = '/search'; 
   };
+
+  const handleCategoryClick = (categoryId: number) => {
+  const params = new URLSearchParams(searchParams.toString());
+  const currentCats = searchParams.get('categories')?.split(',').filter(Boolean) || [];
+  
+  let newCats;
+  if (currentCats.includes(categoryId.toString())) {
+    // Remove if already there
+    newCats = currentCats.filter(id => id !== categoryId.toString());
+  } else {
+    // Add if not there
+    newCats = [...currentCats, categoryId.toString()];
+  }
+
+  if (newCats.length > 0) {
+    params.set('categories', newCats.join(','));
+  } else {
+    params.delete('categories');
+  }
+
+  // scroll: false prevents the page from jumping to the top when you click a tag
+  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+};
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-200">
@@ -181,10 +204,10 @@ function LibrovaHomeContent() {
                   // These props might need updating depending on how you want 
                   // to handle category clicks now that state is in the URL
                   selectedLibrary={null} 
-                  selectedCategories={[]} 
+                  selectedCategories={searchParams.get('categories')?.split(',').map(Number).filter(Boolean) || []} 
                   onClearLibrary={() => {}}
                   onLibraryClick={() => {}}
-                  onCategoryClick={() => {}}
+                  onCategoryClick={handleCategoryClick}
                 />
               )}
             </div>

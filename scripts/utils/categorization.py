@@ -67,7 +67,7 @@ event_categories = {
         "learn chinese", "learn portuguese", "learn italian", "practice spanish", "practice italian",
         "practice german", "practice chinese", "practice portuguese", "practice french", "french conversation",
         "german conversation", "chinese conversation", "portuguese conversation", "spanish conversation", 
-        "italian conversation", "bilingual"
+        "italian conversation", "bilingual", "english class", "spanish class", "french class"
     ],
     "teens": ["teen", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "18+", "adults only", "retirement", "medicare"],

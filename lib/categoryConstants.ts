@@ -40,5 +40,5 @@ export const CATEGORY_MAP: Record<number, string> = CATEGORIES.reduce((acc, cat)
   return acc;
 }, {} as Record<number, string>);
 
-// Your specific quick filters for the Hero/Filter section
-export const QUICK_FILTER_IDS = [9, 10, 8, 12];
+// Most common filters 
+export const QUICK_FILTER_IDS = [12, 11, 10, 9, 8, 1, 7, 25];

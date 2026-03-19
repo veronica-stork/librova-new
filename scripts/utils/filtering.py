@@ -20,12 +20,14 @@ EXCLUSION_KEYWORDS = [
     "cancelled",
     "canceled",
     "postponed",
+    "rescheduled",
     "room reserved",
     "board meeting",
     "board of trustees",
     "meeting of the board of trustees",
     "cancelada",
-    "staff training"
+    "staff training",
+    "no class"
 ]
 
 def is_public_event(title: str, description: str) -> bool:

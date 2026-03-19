@@ -19,14 +19,12 @@ interface EventCardProps {
   event: LibraryEvent;
   selectedCategories: number[]; 
   onLibraryClick?: () => void;
-  onCategoryClick?: (id: number) => void;
+  onCategoryClick: (id: number) => void;
 }
 
 export default function EventCard({ event, selectedCategories, onLibraryClick, onCategoryClick }: EventCardProps) {
   const categories = event.category_ids || [];
   const hasValidUrl = event.sourceUrl && event.sourceUrl !== "#";
-
-  console.log("Event category id: " + typeof event.primary_category_id, event.primary_category_id);
 
   // 1. Check if the primary focus is a Movie
   const isMovie = event.primary_category_id === 21;
@@ -59,7 +57,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
                 key={id} 
                 onClick={(e) => {
                   e.preventDefault();
-                  if (onCategoryClick) onCategoryClick(id);
+                  onCategoryClick(id);
                 }}
         className={`text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-lg border-2 shadow-sm transition-all active:scale-95 ${
           isActive 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search, MapPin, SlidersHorizontal, CalendarDays, X, Navigation, Loader2 } from 'lucide-react';
+import { CATEGORIES, QUICK_FILTER_IDS } from '@/lib/categoryConstants';
 
 export default function SearchControls() {
   const router = useRouter();
@@ -10,8 +11,12 @@ export default function SearchControls() {
   const searchParams = useSearchParams();
 
   const [showFilters, setShowFilters] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const [locationText, setLocationText] = useState(searchParams.get('location') || '');
   const [isLocating, setIsLocating] = useState(false);
+
+  const quickCategories = CATEGORIES.filter(cat => QUICK_FILTER_IDS.includes(cat.id));
+  const otherCategories = CATEGORIES.filter(cat => !QUICK_FILTER_IDS.includes(cat.id));
 
   const updateUrl = (updates: Record<string, string | null>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -22,7 +27,31 @@ export default function SearchControls() {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  // 1. Convert text to coordinates (Your Nominatim logic)
+  const renderCategoryPill = (cat: typeof CATEGORIES[0]) => {
+    const currentCats = searchParams.get('categories')?.split(',').filter(Boolean) || [];
+    const isActive = currentCats.includes(cat.id.toString());
+    
+    return (
+      <button
+        key={cat.id}
+        onClick={() => {
+          const newCats = isActive 
+            ? currentCats.filter(id => id !== cat.id.toString())
+            : [...currentCats, cat.id.toString()];
+          updateUrl({ categories: newCats.length > 0 ? newCats.join(',') : null });
+        }}
+        className={`px-3 py-1.5 rounded-xl text-sm font-semibold transition-all border ${
+          isActive 
+            ? 'bg-rose-600 border-rose-600 text-white shadow-md' 
+            : 'bg-white border-slate-200 text-slate-600 hover:border-rose-300 hover:bg-rose-50'
+        }`}
+      >
+        {cat.name}
+      </button>
+    );
+  };
+
+  // 1. Convert text to coordinates
   const handleLocationSearch = async () => {
     const query = locationText.trim();
     if (!query) {
@@ -180,7 +209,9 @@ export default function SearchControls() {
             </button>
           </div>
           
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Search radius picker */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-600">Search Radius</label>
               <input 
@@ -192,6 +223,7 @@ export default function SearchControls() {
               <div className="text-xs text-slate-500 text-right">{searchParams.get('radius') || '15'} miles</div>
             </div>
 
+            {/* Sort by picker */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-600">Sort By</label>
               <select 
@@ -204,8 +236,42 @@ export default function SearchControls() {
               </select>
             </div>
           </div>
-        </div>
+
+<div className="mt-6 pt-6 border-t border-slate-100">
+  <div className="flex justify-between items-center mb-4">
+    <label className="text-sm font-bold text-slate-700">Filter by Interest</label>
+    {searchParams.get('categories') && (
+      <button 
+        onClick={() => updateUrl({ categories: null })}
+        className="text-xs font-bold text-rose-600 hover:underline"
+      >
+        Clear All
+      </button>
+    )}
+  </div>
+
+  {/* Row 1: The Quick Picks (Always visible) */}
+  <div className="flex flex-wrap gap-2 mb-3">
+       {quickCategories.map(renderCategoryPill)}
+    
+    
+    {/* The Toggle Button */}
+    <button
+      onClick={() => setShowAllCategories(!showAllCategories)}
+      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors flex items-center gap-1"
+    >
+      {showAllCategories ? 'Show Less' : `+ More (${otherCategories.length})`}
+    </button>
+  </div>
+  </div>
+
+  {/* Row 2: The Rest (Expandable) */}
+  {showAllCategories && (
+  <div className="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-xl animate-in fade-in zoom-in-95 duration-200">
+    {otherCategories.map(renderCategoryPill)}
+  </div>
+)}
+</div>
       )}
-    </div>
-  );
-}
+</div>
+  )}
