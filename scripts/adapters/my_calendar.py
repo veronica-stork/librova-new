@@ -34,7 +34,7 @@ class MyCalendarAdapter(BaseLibraryScraper):
             # "My Calendar" single events usually wrap details in one of these standard containers
             desc_container = soup.find('div', class_='mc-description') or \
                              soup.find('div', class_='mc-main') or \
-                             soup.find('div', class_='entry-content')
+                             soup.find('div', class_='description')
             
             if desc_container:
                 return self.clean_html(str(desc_container))

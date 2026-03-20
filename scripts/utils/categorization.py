@@ -7,7 +7,8 @@ CATEGORY_ID_MAP = {
     "adults": 9, "family": 10, "children": 11,
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
-    "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24, "book_clubs": 25
+    "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24, "book_clubs": 25,
+    "book_sale": 26, "writing_workshop": 27
 }
 
 event_categories = {
@@ -83,13 +84,15 @@ event_categories = {
               "vita", "irs", "tax filing", "property tax", "tax exemptions", "income tax", "power of attorney", 
               "estate planning", "probate", "social security", "medicare", "insurance",
               "identity theft", "fraud prevention", "scam alert", "homebuyer", "real estate"],
-    "gardening": ["garden", "plant", "gardening"],
+    "gardening": ["garden", "plant", "gardening", "seed swap"],
     "cooking": ["cooking", "cook", "prepare a meal", "cookbook"],
     "literacy": ["literacy", "learn to read", "reading buddies", "book buddies"],
     "movies": ["movie", "movies", "film", "cinema", "matinee"],
     "virtual": ["zoom", "online event", "virtual event", "virtual"],
     "seniors": ["seniors", "65+", "older adults"],
-    "lgbtq": ["lgbtq", "lgbtqa", "queer", "lgbtqia", "lgbtqia+"]
+    "lgbtq": ["lgbtq", "lgbtqa", "queer", "lgbtqia", "lgbtqia+"],
+    "book sale": ["book sale"],
+    "writing workshop": ["writing workshop", "learn to write", "writers workshop", "writer's workshop"]
 }
 
 COMPILED_RULES = {}
@@ -117,7 +120,8 @@ HIERARCHY_RULES = {
     1: [2, 16], # Storytime consumes: Crafts, Music
     12: [11, 10], # Early childhood consumes: Children
     13: [7], # Tech help consumes STEM
-    10: [9] # Family consumes Adults
+    10: [9], # Family consumes Adults
+    26: [16, 21, 2, 4, 5, 6, 7, 15, 17, 18, 19] # Book sale consumes types of media & topics of books that might be mentioned as being for sale
 }
 
 def extract_category_ids(title: str, description: str) -> list[int]:

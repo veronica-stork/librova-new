@@ -29,6 +29,9 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
   // 1. Check if the primary focus is a Movie
   const isMovie = event.primary_category_id === 21;
 
+  console.log(`Type of category ID? ${typeof(event.primary_category_id)}`)
+  console.log("Category id? " + event.primary_category_id)
+
   // 2. Mask the title if true
   const displayedTitle = isMovie 
     ? "🎬 Movie Showing" 
@@ -123,7 +126,7 @@ export default function EventCard({ event, selectedCategories, onLibraryClick, o
             : "bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed"
           }`}
         >
-          {isMovie ? "See What's Playing" : (hasValidUrl ? "More Info" : "No Link Available")} {/* <-- CHANGED */}
+          {isMovie ? "See What's Playing" : (hasValidUrl ? "More Info" : "No Link Available")}
         </a>
       </div>
     </div>

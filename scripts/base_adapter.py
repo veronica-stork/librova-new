@@ -92,35 +92,54 @@ class BaseLibraryScraper:
     
     def determine_primary_category(self, category_ids: List[int], title: str) -> Optional[int]:
         """
-        Calculates the most prominent category for an event to aid in UI masking 
-        and primary tagging.
+        Determines primary category. Movie (21) only wins if 'movie/film/matinee' 
+        is explicitly in the title.
         """
         if not category_ids:
             return None
         
         title_lower = title.lower()
-
-        for cat_id in category_ids:
-            cat_name = ID_TO_CAT_NAME.get(cat_id)
-
-            if cat_name:
-                keywords = event_categories.get(cat_name, [cat_name])
-            
-                if any(keyword in title_lower for keyword in keywords):
-                        return cat_id
-            
-        # 2. Specificity vs. Breadth
-        # Broad tags: 8(Teens), 9(Adults), 10(Family), 11(Children), 12(Early Childhood)
-        broad_tags = [8, 9, 10, 11, 12] 
-        specific_tags = [cat_id for cat_id in category_ids if cat_id not in broad_tags]
+        MOVIE_ID = 21
+        movie_keywords = ['movie', 'film', 'matinee', 'screening', 'cinema']
         
-        # If there's exactly one specific tag (like Movies, STEM, or Crafts), it wins
-        if len(specific_tags) == 1:
-            return specific_tags[0]
-            
-        # 3. Default fallback
-        # If it's a mix of specific tags (Teen Time: movies + games), fall back to the first broad tag
-        return category_ids[0]
+        # 1. THE MOVIE GATEKEEPER
+        # Does the title actually signify this is a "Movie Event"?
+        has_movie_keyword = any(k in title_lower for k in movie_keywords)
+        
+        if MOVIE_ID in category_ids and has_movie_keyword:
+            return MOVIE_ID
+
+        # 2. DISQUALIFY MOVIE FROM FALLBACK
+        # If the title doesn't say "Movie", we treat the Movie tag as 
+        # secondary (like in the "Teen Time" example).
+        eligible_ids = [cid for cid in category_ids if cid != MOVIE_ID]
+        if not eligible_ids:
+            # If Movie was the only tag but wasn't in the title, 
+            # we have no choice but to return it or None.
+            return MOVIE_ID if has_movie_keyword else None
+
+        # 3. AUDIENCE HIERARCHY
+        restrictive_audiences = [8, 9, 12] # Teens, Adults, Early Childhood
+        broad_audiences = [10, 11]         # Family, Children
+        
+        # Check for restrictive audience keywords in title ("Teen Time", "Adult Book Club")
+        for aud_id in restrictive_audiences:
+            if aud_id in eligible_ids:
+                cat_name = ID_TO_CAT_NAME.get(aud_id, "").lower()
+                if cat_name in title_lower:
+                    return aud_id
+
+        # 4. SPECIFIC ACTIVITY FALLBACK
+        # If no restrictive audience is in the title, specific activities 
+        # (STEM, Crafts) take precedence over broad audience tags (Family).
+        all_audiences = restrictive_audiences + broad_audiences
+        specific_activities = [cid for cid in eligible_ids if cid not in all_audiences]
+        
+        if specific_activities:
+            return specific_activities[0]
+
+        # 5. ULTIMATE FALLBACK
+        return eligible_ids[0]
     
 
     def parse_datetime(self, date_val: str, time_val: Optional[str] = None, is_all_day: bool = False) -> Optional[datetime]:
