@@ -33,7 +33,8 @@ export const CATEGORIES: Category[] = [
   { id: 24, name: "LGBTQ" },
   { id: 25, name: "Book Clubs"},
   { id: 26, name: "Book Sale"},
-  { id: 27, name: "Writing Workshop"}
+  { id: 27, name: "Writing Workshop"},
+  { id: 28, name: "Fitness"}
 ];
 
 // Helper to quickly get a name by ID: e.g., CATEGORY_MAP[21] -> "Movies"

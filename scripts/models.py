@@ -14,6 +14,7 @@ class StandardizedEvent:
     event_url: Optional[str] = None
     category_ids: Optional[List[int]] = None
     primary_category_id: Optional[int] = None
+    raw_metadata: str = ""
 
     def to_dict(self) -> dict:
         """

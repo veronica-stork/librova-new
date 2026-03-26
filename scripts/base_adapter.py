@@ -32,8 +32,12 @@ class BaseLibraryScraper:
 
         for event in all_events:
             if is_public_event(event.title, event.description):
+                
+                metadata = getattr(event, 'raw_metadata', '')
+                text_payload = f"{event.description} {metadata}".strip()
+                
                 if not event.category_ids:
-                    event.category_ids = extract_category_ids(event.title, event.description)
+                    event.category_ids = extract_category_ids(event.title, text_payload)
                 event.primary_category_id = self.determine_primary_category(event.category_ids, event.title)
                 
                 public_events.append(event)

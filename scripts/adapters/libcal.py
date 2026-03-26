@@ -1,4 +1,5 @@
 import requests
+import json
 from datetime import datetime, timedelta
 from urllib.parse import urljoin
 from typing import Any, List
@@ -70,12 +71,9 @@ class LibCalAdapter(BaseLibraryScraper):
             
             # Combine LibCal's rich metadata so your heuristic categorizer has a lot to work with!
             description = event.get('short_desc', '')
-            audiences = event.get('audiences', '')
-            categories = event.get('categories', '')
-            
-            # We shove this all into the 'description' field of the dataclass 
-            # so `extract_category_ids` can read it in the base class.
-            classification_text = f"{title} {description} {audiences} {categories}".strip()
+            # audiences = event.get('audiences', '')
+            # categories = event.get('categories', '')
+                        
 
             # Parse the ISO date string into a Python datetime object
             start_str = event.get('start')
@@ -91,8 +89,12 @@ class LibCalAdapter(BaseLibraryScraper):
                 title=title,
                 start_time=dt_obj,
                 library_id=self.library_id,
-                description=classification_text, 
-                event_url=event_url
+                description=description, 
+                event_url=event_url,
+                # Skipping category mapping for now
+                category_ids=None, 
+                # The insurance policy: saving the raw LibCal JSON
+                raw_metadata=json.dumps(event)
             )
             
             events.append(standardized_event)

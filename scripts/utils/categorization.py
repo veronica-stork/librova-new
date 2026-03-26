@@ -8,7 +8,7 @@ CATEGORY_ID_MAP = {
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
     "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24, "book_clubs": 25,
-    "book_sale": 26, "writing_workshop": 27
+    "book_sale": 26, "writing_workshop": 27, "fitness": 28
 }
 
 event_categories = {
@@ -16,7 +16,7 @@ event_categories = {
         "storytime", "story time", "story-time", "read aloud", "read-aloud", 
         "toddler time", "rhymes", "nursery rhymes", "bilingual storytime", 
         "read to", "tales", "lapsit", "bedtime story", "wiggles",
-        "fingerplay", "mother goose"
+        "fingerplay", "mother goose", "story hour"
     ],
     "history": [
         "history"
@@ -42,16 +42,17 @@ event_categories = {
         "tablet", "device advice", "tech tutor", "software help", "digital literacy", "technology help", 
         "technology questions", "tech questions"
     ],
-    "health": ["nutrition", "diet", "zumba", "pilates", "tai chi", "qigong", "yoga", 
-               "self-care", "wellness", "meditation", "mindfulness", "stress", 
+    "health": ["nutrition", "diet", "self-care", "wellness", "meditation", "mindfulness", "stress", 
                "mental health", "grief", "alzheimer's", "dementia", "depression", "support group", 
-               "cardio", "strength training", "aerobics", "narcan", "addiction", "cpr", "first aid"],
+                "narcan", "addiction", "cpr", "first aid"],
+    "fitness": ["zumba", "pilates", "tai chi", "qigong", "yoga", "cardio", "strength training", "dumbbells",
+                "floor exercises", "aerobics"],
     "book_talks": [
         "author visit", "book talk", "author talk",
         "meet the author"
     ],
     "book_clubs": [
-        "book club", "book discussion", "reading group" 
+        "book club", "book discussion", "reading group", "book group" 
     ],
     "games": [
         "board game", "video game", "trivia", "bingo", "chess", 
@@ -74,7 +75,7 @@ event_categories = {
     "teens": ["teen", "grades 6-12", "middle school", "high school", "ya", "young adult", "grades 7-12", "adolescent"],
     "adults": ["adult", "18+", "seniors", "elder", "21+", "18+", "adults only", "retirement", "medicare"],
     "children": ["kid", "child", "baby", "babies", "elementary", "tween", "grades k-5"],
-    "family": ["family", "all ages", "intergenerational", "parents", "caregiver", "family-friendly"],
+    "family": ["family", "families", "all ages", "family-friendly"],
     "music": ["music", "concert", "performance", "recital", "symphony", "gig", "acoustic", "band", "instruments",
               "choir", "ensemble", "live music", "ukulele", "guitar", "piano", "drums", "fiddle", "violin", 
               "strings", "percussion", "orchestra", "brass", "woodwind", "jam session", "sing-along", "karaoke", 
@@ -118,9 +119,10 @@ for category, keywords in event_categories.items():
 
 HIERARCHY_RULES = {
     1: [2, 16], # Storytime consumes: Crafts, Music
-    12: [11, 10], # Early childhood consumes: Children
+    # 12: [11, 10], # Early childhood consumes: Children - experimenting w/ leaving this out to catch programs that are for children of all ages.
     13: [7], # Tech help consumes STEM
     10: [9], # Family consumes Adults
+    27: [1], # Writer's workshops consumes "story time" - sometimes, the keywords overlap.
     26: [16, 21, 2, 4, 5, 6, 7, 15, 17, 18, 19] # Book sale consumes types of media & topics of books that might be mentioned as being for sale
 }
 
