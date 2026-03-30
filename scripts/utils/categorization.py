@@ -19,7 +19,7 @@ event_categories = {
         "fingerplay", "mother goose", "story hour"
     ],
     "history": [
-        "history"
+        "history", "historical"
     ],
     "early_childhood": [
         "twos", "threes", "two-year-olds", "three-year-olds", "pre-k", 
@@ -30,12 +30,12 @@ event_categories = {
         "painting", "knitting", "crochet", "sewing", "scrapbooking", 
         "drawing", "maker", "watercolor", "yarn", "papercraft",
         "quilter", "quilting", "crafter", "needlework", "embroidery", "mixed media", "collage", 
-        "junk journaling", "candle making", "zines"
+        "junk journaling", "candle making", "zines", "art journal", "art journaling"
     ],
     "stem": [
         "stem", "steam", "coding", "robotics", "lego", "science", 
         "math", "experiment", "engineering", "technology", "3d printing", 
-        "python", "physics", "astronomy", "outer space", "computer science", "minecraft"
+        "python", "physics", "astronomy", "outer space", "computer science", "minecraft", "makerspace"
     ],
     "tech_help": [
         "tech help", "computer help", "smart phone", "iphone help", 
