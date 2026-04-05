@@ -190,6 +190,11 @@ def extract_category_ids(title: str, description: str) -> list[int]:
             # don't tag it as an Adult (9) program.
             if cat_id == 9 and is_participation_requirement:
                 continue
+
+            # If we found 'family', but not 'children', add children. This helps ensure that
+            # people looking for activities for kids, find everything that is relevant.
+            if cat_id == 10:
+                matched_ids.add(11)
                                             
             matched_ids.add(cat_id)
             
