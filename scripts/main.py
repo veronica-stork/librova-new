@@ -48,7 +48,7 @@ def main():
         return
 
     # Setup API configuration
-    API_URL = os.getenv('NEXT_PUBLIC_API_URL', 'http://localhost:3000') + '/api/events'
+    API_URL = os.getenv('API_BASE_URL', 'http://localhost:3000') + '/api/events'    
     API_KEY = os.getenv('SCRAPER_API_KEY')
     HEADERS = {
         "Authorization": f"Bearer {API_KEY}",
