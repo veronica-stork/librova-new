@@ -34,8 +34,14 @@ def fetch_libraries_from_db():
 def main():
     print("🤖 Starting Librova Scraper Orchestrator...\n")
     
+    # Check what the OS sees before load_dotenv
+    print(f"DEBUG: API_BASE_URL from System: {os.getenv('API_BASE_URL')}")
+    
     # 1. Load environment variables
     load_dotenv('../.env.local') 
+
+        # Check again after load_dotenv
+    print(f"DEBUG: API_BASE_URL after load_dotenv: {os.getenv('API_BASE_URL')}")
 
     # 2. Prune old events from the database
     prune_past_events()
