@@ -5,9 +5,20 @@ export async function POST(request: Request) {
   try {
     // 1. Basic Security: Check for a secret API key
     const authHeader = request.headers.get('authorization');
+    const serverKey = process.env.SCRAPER_API_KEY;
+
+    // --- TEMPORARY DEBUGGING ---
+    if (!serverKey) {
+      return NextResponse.json({ error: 'Vercel is missing the key completely!' }, { status: 401 });
+    }
+    
     if (authHeader !== `Bearer ${process.env.SCRAPER_API_KEY}`) {
       console.log(`Auth header: ${authHeader}`)
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ 
+        error: 'Keys do not match', 
+        youSent: authHeader,
+        hint: `Server key length is ${serverKey.length} characters`
+      }, { status: 401 });
     }
 
     // 2. Initialize Neon connection
