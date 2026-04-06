@@ -3,6 +3,7 @@ import psycopg2
 import requests 
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+from pathlib import Path
 
 from utils.db_cleanup import prune_past_events
 
@@ -38,11 +39,21 @@ def main():
     print(f"DEBUG: API_BASE_URL from System: {os.getenv('API_BASE_URL')}")
     
     # 1. Load environment variables
-    load_dotenv('../.env.local') 
+    script_dir = Path(__file__).resolve().parent
+    env_path = script_dir.parent / '.env.local'
 
+    # 2. Load the file
+    load_dotenv(dotenv_path=env_path)
+
+    
         # Check again after load_dotenv
     print(f"DEBUG: API_BASE_URL after load_dotenv: {os.getenv('API_BASE_URL')}")
-
+    
+    # 3. Verify it worked before doing anything else
+    if not os.getenv("DATABASE_URL"):
+        print("❌ CRITICAL ERROR: .env.local failed to load. Are you sure it's in the root folder?")
+        return
+    
     # 2. Prune old events from the database
     prune_past_events()
 
@@ -55,7 +66,9 @@ def main():
 
     # Setup API configuration
     API_URL = os.getenv('API_BASE_URL', 'http://localhost:3000') + '/api/events'    
+
     API_KEY = os.getenv('SCRAPER_API_KEY')
+
     HEADERS = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"

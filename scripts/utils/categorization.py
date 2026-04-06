@@ -93,7 +93,7 @@ event_categories = {
     "seniors": ["seniors", "65+", "older adults"],
     "lgbtq": ["lgbtq", "lgbtqa", "queer", "lgbtqia", "lgbtqia+"],
     "book sale": ["book sale"],
-    "writing workshop": ["writing workshop", "learn to write", "writers workshop", "writer's workshop"]
+    "writing_workshop": ["writing workshop", "learn to write", "writers workshop", "writer's workshop"]
 }
 
 COMPILED_RULES = {}
