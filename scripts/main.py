@@ -35,19 +35,12 @@ def fetch_libraries_from_db():
 def main():
     print("🤖 Starting Librova Scraper Orchestrator...\n")
     
-    # Check what the OS sees before load_dotenv
-    print(f"DEBUG: API_BASE_URL from System: {os.getenv('API_BASE_URL')}")
-    
     # 1. Load environment variables
     script_dir = Path(__file__).resolve().parent
     env_path = script_dir.parent / '.env.local'
 
     # 2. Load the file
     load_dotenv(dotenv_path=env_path)
-
-    
-        # Check again after load_dotenv
-    print(f"DEBUG: API_BASE_URL after load_dotenv: {os.getenv('API_BASE_URL')}")
     
     # 3. Verify it worked before doing anything else
     if not os.getenv("DATABASE_URL"):

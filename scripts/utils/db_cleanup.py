@@ -14,8 +14,7 @@ def prune_past_events() -> None:
     # This prevents hardcoding localhost so it works in production later.
     base_url = os.getenv("API_BASE_URL", "http://localhost:3000")
     
-    # cleanup_url = f"{base_url}/api/events/cleanup"
-    cleanup_url = "https://librova-new.vercel.app/api/events/cleanup"
+    cleanup_url = f"{base_url}/api/events/cleanup"
 
     headers = {
         "Authorization": f"Bearer {api_key}",
