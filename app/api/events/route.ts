@@ -6,6 +6,7 @@ export async function POST(request: Request) {
     // 1. Basic Security: Check for a secret API key
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.SCRAPER_API_KEY}`) {
+      console.log(`Auth header: ${authHeader}`)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
