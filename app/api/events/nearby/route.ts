@@ -77,7 +77,7 @@ export async function GET(request: Request) {
           ? sql`DATE(e.start_time) ASC, distance_miles ASC, e.start_time ASC` 
           : sql`e.start_time ASC`
         }
-        LIMIT 500;
+        LIMIT 100;
       `;
     } else {
       // Query WITHOUT geographic filtering (All system events)

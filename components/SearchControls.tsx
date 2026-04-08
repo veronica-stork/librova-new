@@ -55,7 +55,7 @@ export default function SearchControls() {
   const handleLocationSearch = async () => {
     const query = locationText.trim();
     if (!query) {
-      updateUrl({ location: null, lat: null, lng: null });
+      updateUrl({ location: null, lat: null, lng: null, sort: null });
       return;
     }
 
@@ -73,6 +73,7 @@ export default function SearchControls() {
           location: query,
           lat: data[0].lat,
           lng: data[0].lon,
+          sort: 'distance',
         });
       } else {
         alert(`Could not find a location for "${query}". Try adding the state, like "${query}, NY".`);
@@ -93,21 +94,44 @@ export default function SearchControls() {
     }
 
     setIsLocating(true);
+
+    const options = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocationText("My Location");
         updateUrl({
           location: "My Location",
           lat: position.coords.latitude.toString(),
-          lng: position.coords.longitude.toString()
+          lng: position.coords.longitude.toString(),
+          sort: 'distance'
         });
         setIsLocating(false);
       },
       (error) => {
         console.error("Error getting location:", error);
-        alert("We need your permission to find nearby libraries!");
         setIsLocating(false);
+
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Location access denied. Please check Settings > Privacy & Security > Location Services > Safari Websites on your iPhone.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Location information is unavailable right now.");
+            break;
+          case error.TIMEOUT:
+            alert("The request to get your location timed out. Please try again.");
+            break;
+          default:
+            alert("An unknown error occurred while finding your location.");
+            break;
       }
+    },
+    options
     );
   };
 
@@ -228,7 +252,7 @@ export default function SearchControls() {
               <label className="text-sm font-semibold text-slate-600">Sort By</label>
               <select 
                 onChange={(e) => updateUrl({ sort: e.target.value })}
-                defaultValue={searchParams.get('sort') || 'time'}
+                value={searchParams.get('sort') || 'time'}
                 className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-rose-500 text-sm text-slate-700"
               >
                 <option value="time">Upcoming First</option>
