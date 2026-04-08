@@ -72,18 +72,52 @@ class AssabetAdapter(BaseLibraryScraper):
         seven_days_later = now + timedelta(days=7)
 
         # Support both 'listing-event' and 'listing_event' classes
-        event_cards = soup.find_all('div', class_=['listing-event', 'listing_event'])
+        event_cards = soup.find_all('div', class_=['listing-event', 'listing_event', 'event', 'single-event'])
 
         for card in event_cards:
             title = "N/A"
             event_url = None
             
-            h2_tag = card.find('h2')
-            if h2_tag:
-                title = h2_tag.get_text(strip=True)
-                a_tag = h2_tag.find('a', href=True)
-                if a_tag:
-                    event_url = urljoin(self.target_url, a_tag['href'])
+            # 1. Grab all possible heading tags
+            headings = card.find_all(['h2', 'h3', 'h4'])
+            
+            for heading in headings:
+                # 2. If this heading contains the date/time spans, it's a trap. Skip it.
+                if heading.find('span', class_='event-day'):
+                    continue
+                
+                # 3. If we survive the check above, we found the clean title heading!
+                title = heading.get_text(strip=True)
+                
+                # 4. Grab the URL if it's a clickable link
+                link_tag = heading.find('a', href=True)
+                if link_tag:
+                    event_url = urljoin(self.target_url, link_tag['href'])
+                
+                # Break out of the loop since we found what we need
+                if title:
+                    break
+            
+            # --- THE FALLBACK ---
+            # Just in case a library doesn't use headings at all
+            if title == "N/A":
+                all_links = card.find_all('a', attrs={'data-slug': True})
+                for link in all_links:
+                    # Ignore the wrapper links and the "Learn More" links
+                    if link.find('span', class_='event-day') or 'Learn More' in link.get_text():
+                        continue
+                    
+                    title = link.get_text(strip=True)
+                    event_url = urljoin(self.target_url, link['href'])
+                    if title:
+                        break
+
+            # h2_tag = card.find('h2')
+            # if h2_tag:
+            #     title = h2_tag.get_text(strip=True)
+            #     a_tag = h2_tag.find('a', href=True)
+            #     if a_tag:
+            #         event_url = urljoin(self.target_url, a_tag['href'])
 
             date_raw = card.find('span', class_='event-day').get_text(strip=True)
             time_raw = card.find('span', class_='event-time').get_text(strip=True)
