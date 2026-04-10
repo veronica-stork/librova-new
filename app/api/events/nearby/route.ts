@@ -6,14 +6,21 @@ import { neon } from '@neondatabase/serverless';
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   
-  // Existing Params
+  // Library & location params
   const libraryParam = searchParams.get('library');
   const sortParam = searchParams.get('sort') || 'time'; 
   const latParam = searchParams.get('lat');
   const lngParam = searchParams.get('lng');
   const radiusMiles = parseFloat(searchParams.get('radius') || '15');
   
-  // New Params for Search & Date
+  // pagination params
+  const pageParam = searchParams.get('page') || '1';
+  const page = parseInt(pageParam, 10);
+  const limit = 100;
+
+  const offset = (page - 1) * limit;
+
+  // Params for Search & Date
   const q = searchParams.get('q') || '';
   const dateFilter = searchParams.get('date') || 'today';
   const clientTime = searchParams.get('clientTime') || '00:00:00';
@@ -77,7 +84,8 @@ export async function GET(request: Request) {
           ? sql`DATE(e.start_time) ASC, distance_miles ASC, e.start_time ASC` 
           : sql`e.start_time ASC`
         }
-        LIMIT 100;
+        LIMIT ${limit}
+        OFFSET ${offset};
       `;
     } else {
       // Query WITHOUT geographic filtering (All system events)
@@ -96,7 +104,8 @@ export async function GET(request: Request) {
         ${libraryParam ? sql`AND l.name ILIKE ${'%' + libraryParam + '%'}` : sql``}
         
         ORDER BY e.start_time ASC
-        LIMIT 100;
+        LIMIT ${limit}
+        OFFSET ${offset};
       `;
     }
 

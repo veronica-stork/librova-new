@@ -8,6 +8,11 @@ interface EventFeedProps {
   onClearLibrary: () => void;
   onLibraryClick: (libraryName: string) => void;
   onCategoryClick: (categoryId: number) => void;
+  
+  // New Pagination Props
+  onLoadMore: () => void;
+  hasMore: boolean;
+  isLoading: boolean;
 }
 
 export default function EventFeed({
@@ -16,7 +21,10 @@ export default function EventFeed({
   selectedCategories,
   onClearLibrary,
   onLibraryClick,
-  onCategoryClick
+  onCategoryClick,
+  onLoadMore,
+  hasMore,
+  isLoading
 }: EventFeedProps) {
   
   // Empty State Handling
@@ -69,6 +77,23 @@ export default function EventFeed({
             onCategoryClick={(id) => onCategoryClick(id)}
           />
         ))}
+      </div>
+
+      {/* Pagination UI - The "Load More" Button */}
+      <div className="mt-12 flex flex-col items-center justify-center">
+        {hasMore ? (
+          <button
+            onClick={onLoadMore}
+            disabled={isLoading}
+            className="px-8 py-3 bg-teal-50 text-teal-800 font-extrabold rounded-full border-2 border-teal-100 hover:bg-teal-100 hover:border-teal-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Loading..." : "Load More Events"}
+          </button>
+        ) : (
+          <p className="text-slate-400 font-medium bg-slate-50 px-6 py-2 rounded-full border border-slate-100">
+            You've reached the end of the results.
+          </p>
+        )}
       </div>
     </section>
   );

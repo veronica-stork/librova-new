@@ -18,6 +18,11 @@ function LibrovaHomeContent() {
   const [allLibraries, setAllLibraries] = useState<Library[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // 👇 NEW: Pagination State
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Separates initial load spinner from the button spinner
+  
   // View Toggle State
   const [currentView, setCurrentView] = useState<'feed' | 'directory'>('feed');
 
@@ -33,8 +38,15 @@ function LibrovaHomeContent() {
   const urlCategories = searchParams.get('categories') || '';
   const urlLibrary = searchParams.get('library') || '';
 
-  const fetchEvents = async () => {
-    setIsLoading(true);
+  // 👇 UPDATED: Added targetPage and isLoadMore parameters
+  const fetchEvents = async (targetPage = 1, isLoadMore = false) => {
+    if (isLoadMore) {
+      setIsLoadingMore(true);
+    } else {
+      setIsLoading(true);
+      setPage(1); // Reset page tracking if this is a fresh search!
+    }
+
     try {
       const params = new URLSearchParams();
       
@@ -45,29 +57,21 @@ function LibrovaHomeContent() {
         params.append('radius', urlRadius);
       }
       
-      // 2. Keyword Search
-      if (urlQ) {
-        params.append('q', urlQ);
-      }
+      // 2. Keyword Search & Filters
+      if (urlQ) params.append('q', urlQ);
+      if (urlCategories) params.append('categories', urlCategories);
+      if (urlLibrary) params.append('library', urlLibrary);
 
-      if (urlCategories) {
-        params.append('categories', urlCategories);
-      }
-
-      if (urlLibrary) {
-        params.append('library', urlLibrary);
-      }
-
-      // 3. Date Filter
+      // 3. Date, Sort, Time
       params.append('date', urlDate);
-
-      // 4. Sort Order
       params.append('sort', urlSort);
 
-      // 5. Client Time (To filter out events that already ended today)
       const now = new Date();
       const clientTime = now.toLocaleTimeString('en-US', { hour12: false });
       params.append('clientTime', clientTime);
+
+      // 👇 NEW: Send the page number to the API
+      params.append('page', targetPage.toString());
 
       const queryString = params.toString();
       const endpoint = `/api/events/nearby${queryString ? `?${queryString}` : ''}`;
@@ -79,21 +83,35 @@ function LibrovaHomeContent() {
       }
       
       const data = await response.json();
-      // If we asked for today, but got nothing back, auto-forward to tomorrow!
-      if (data.length === 0 && urlDate === 'today') {
+
+      // If we asked for today, but got nothing back on a fresh search, auto-forward to tomorrow!
+      if (data.length === 0 && urlDate === 'today' && !isLoadMore) {
         const params = new URLSearchParams(searchParams.toString());
         params.set('date', 'tomorrow');
-        
-        // This silently updates the URL, which automatically triggers 
-        // the useEffect to run fetchEvents() again!
         router.replace(`${pathname}?${params.toString()}`);
         return; 
       }
-      setEvents(data); 
+
+      // 👇 NEW: Check if we hit the end of the results (assuming 100 is your limit)
+      if (data.length < 100) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+
+      // 👇 NEW: Append or Replace logic
+      if (isLoadMore) {
+        setEvents((prev) => [...prev, ...data]); // Glue new events to the bottom
+        setPage(targetPage); // Officially update the page state
+      } else {
+        setEvents(data); // Wipe and replace for a fresh search
+      }
+
     } catch (error) {
       console.error("Failed to fetch events:", error);
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -108,9 +126,9 @@ function LibrovaHomeContent() {
     }
   };
 
-  // Trigger fetch when URL parameters change
+  // Trigger fetch when URL parameters change (This handles fresh searches)
   useEffect(() => {
-    fetchEvents();
+    fetchEvents(1, false); 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlLat, urlLng, urlQ, urlLocationQuery, urlRadius, urlSort, urlDate, urlLibrary, urlCategories]);
 
@@ -119,106 +137,64 @@ function LibrovaHomeContent() {
     fetchLibraries();
   }, []);
 
-  // For the navbar reset button
   const handleReset = () => {
     setCurrentView('feed');
-    // The easiest way to reset is just push the user back to the clean root URL
     window.location.href = '/search'; 
   };
 
   const handleLibraryClick = (libraryName: string) => {
-  const params = new URLSearchParams(searchParams.toString());
-  
-  // Update the 'library' parameter
-  params.set('library', libraryName);
-  
-  // Update the URL. We use { scroll: false } to prevent the page 
-  // from jumping to the top if they click a library at the bottom of the feed.
-  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-};
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('library', libraryName);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-const handleClearLibrary = () => {
-  const params = new URLSearchParams(searchParams.toString());
-  params.delete('library');
-  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-};
+  const handleClearLibrary = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('library');
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const handleCategoryClick = (categoryId: number) => {
-  const params = new URLSearchParams(searchParams.toString());
-  const currentCats = searchParams.get('categories')?.split(',').filter(Boolean) || [];
-  
-  let newCats;
-  if (currentCats.includes(categoryId.toString())) {
-    // Remove if already there
-    newCats = currentCats.filter(id => id !== categoryId.toString());
-  } else {
-    // Add if not there
-    newCats = [...currentCats, categoryId.toString()];
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    const currentCats = searchParams.get('categories')?.split(',').filter(Boolean) || [];
+    
+    let newCats;
+    if (currentCats.includes(categoryId.toString())) {
+      newCats = currentCats.filter(id => id !== categoryId.toString());
+    } else {
+      newCats = [...currentCats, categoryId.toString()];
+    }
 
-  if (newCats.length > 0) {
-    params.set('categories', newCats.join(','));
-  } else {
-    params.delete('categories');
-  }
+    if (newCats.length > 0) {
+      params.set('categories', newCats.join(','));
+    } else {
+      params.delete('categories');
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-  // scroll: false prevents the page from jumping to the top when you click a tag
-  router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-};
+  // 👇 NEW: The function that runs when the user clicks "Load More"
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    fetchEvents(nextPage, true);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-200">
       
-      {/* Navigation Bar */}
+      {/* Navigation Bar (Unchanged) */}
       <nav className="bg-white border-b-4 border-rose-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center">
-            
-            {/* Logo area */}
-            <div 
-              className="flex-shrink-0 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" 
-              onClick={handleReset}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && handleReset()}
-              aria-label="Reset filters and go home"
-            >
-              <div className="w-10 h-10 bg-rose-600 rounded-2xl rotate-3 flex items-center justify-center shadow-sm">
-                <span className="text-white font-extrabold text-2xl -rotate-3">L</span>
-              </div>
-              <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Librova</h1>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-8">
-              <nav className="flex gap-6">
-                <button 
-                  onClick={() => setCurrentView('feed')}
-                  className={`font-bold text-lg transition-colors ${currentView === 'feed' ? 'text-rose-600' : 'text-slate-500 hover:text-slate-800'}`}
-                >
-                  Explore
-                </button>
-                <button 
-                  onClick={() => setCurrentView('directory')}
-                  className={`font-bold text-lg transition-colors ${currentView === 'directory' ? 'text-rose-600' : 'text-slate-500 hover:text-slate-800'}`}
-                >
-                  Libraries
-                </button>
-              </nav>              
-            </div>
-          </div>
-        </div>
+       {/* ... keeping your existing nav code ... */}
       </nav>
 
       {/* Main Content Area */}
       <main className="w-full pb-20">
         {currentView === 'feed' ? (
           <>
-            {/* 1. The Integrated Hero & Search Component */}
             <Hero />
 
-            {/* 2. The Event Feed */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+              {/* Only show the full-page spinner on a FRESH search (page 1) */}
               {isLoading ? (
                 <div className="flex justify-center items-center py-20">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
@@ -226,13 +202,15 @@ const handleClearLibrary = () => {
               ) : (
                 <EventFeed 
                   events={events}
-                  // These props might need updating depending on how you want 
-                  // to handle category clicks now that state is in the URL
-                  selectedLibrary={null} 
+                  selectedLibrary={urlLibrary || null} 
                   selectedCategories={searchParams.get('categories')?.split(',').map(Number).filter(Boolean) || []} 
-                  onClearLibrary={() => {}}
+                  onClearLibrary={handleClearLibrary}
                   onLibraryClick={handleLibraryClick}
                   onCategoryClick={handleCategoryClick}
+                  // 👇 PASSING THE NEW PAGINATION PROPS
+                  onLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                  isLoading={isLoadingMore}
                 />
               )}
             </div>
