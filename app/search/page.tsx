@@ -7,6 +7,8 @@ import EventFeed from '../../components/EventFeed';
 import Hero from '@/components/Hero';
 import { Library, LibraryDirectory } from '../../components/LibraryDirectory';
 import { Suspense } from 'react';
+import PlausibleProvider from 'next-plausible';
+
 
 function LibrovaHomeContent() {
   const searchParams = useSearchParams();
@@ -180,6 +182,7 @@ function LibrovaHomeContent() {
   };
 
   return (
+    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js">
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-200">
       
       {/* Navigation Bar (Unchanged) */}
@@ -222,6 +225,7 @@ function LibrovaHomeContent() {
         )}
       </main>
     </div>
+    </PlausibleProvider>
   );
 }
 
