@@ -20,7 +20,7 @@ function LibrovaHomeContent() {
   const [allLibraries, setAllLibraries] = useState<Library[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // 👇 NEW: Pagination State
+  // Pagination State
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Separates initial load spinner from the button spinner
@@ -40,7 +40,7 @@ function LibrovaHomeContent() {
   const urlCategories = searchParams.get('categories') || '';
   const urlLibrary = searchParams.get('library') || '';
 
-  // 👇 UPDATED: Added targetPage and isLoadMore parameters
+  // targetPage and isLoadMore parameters
   const fetchEvents = async (targetPage = 1, isLoadMore = false) => {
     if (isLoadMore) {
       setIsLoadingMore(true);
@@ -175,7 +175,7 @@ function LibrovaHomeContent() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // 👇 NEW: The function that runs when the user clicks "Load More"
+  // The function that runs when the user clicks "Load More"
   const handleLoadMore = () => {
     const nextPage = page + 1;
     fetchEvents(nextPage, true);
@@ -229,6 +229,7 @@ function LibrovaHomeContent() {
 
 export default function LibrovaHome() {
   return (
+    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js">
     <Suspense fallback={
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
@@ -236,5 +237,6 @@ export default function LibrovaHome() {
     }>
       <LibrovaHomeContent />
     </Suspense>
+    </PlausibleProvider>
   );
 }
