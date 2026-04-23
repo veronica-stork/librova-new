@@ -7,7 +7,6 @@ import EventFeed from '../../components/EventFeed';
 import Hero from '@/components/Hero';
 import { Library, LibraryDirectory } from '../../components/LibraryDirectory';
 import { Suspense } from 'react';
-import PlausibleProvider from 'next-plausible';
 
 
 function LibrovaHomeContent() {
@@ -229,7 +228,7 @@ function LibrovaHomeContent() {
 
 export default function LibrovaHome() {
   return (
-    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js">
+    
     <Suspense fallback={
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
@@ -237,6 +236,5 @@ export default function LibrovaHome() {
     }>
       <LibrovaHomeContent />
     </Suspense>
-    </PlausibleProvider>
   );
 }
