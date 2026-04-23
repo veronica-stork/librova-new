@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import PlausibleProvider from 'next-plausible'
 
 export default function LibrovaWaitlist() {
   const [email, setEmail] = useState('');
@@ -27,6 +28,7 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 };
 
   return (
+    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js"></PlausibleProvider>
     <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200 flex flex-col">
       
       {/* Simple Navigation */}
@@ -229,5 +231,6 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   </div>
 </footer>
     </div>
+    </PlausibleProvider>
   );
 }
