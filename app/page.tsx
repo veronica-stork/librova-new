@@ -28,7 +28,7 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 };
 
   return (
-    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js"></PlausibleProvider>
+    <PlausibleProvider src="https://plausible.io/js/pa-sg4BID33_L_D4oA_Whr8M.js">
     <div className="min-h-screen bg-amber-50 text-slate-800 font-sans selection:bg-rose-200 flex flex-col">
       
       {/* Simple Navigation */}
