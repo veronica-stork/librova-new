@@ -1,15 +1,15 @@
 import { auth } from '@clerk/nextjs/server';
-import { SignInButton, SignUpButton } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, SignOutButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Building2, ArrowLeft } from 'lucide-react'; // Make sure you have lucide-react installed!
 
-export default function StaffPage() {
-  const { userId } = auth();
+export default async function StaffPage() {
 
+    const { isAuthenticated } = await auth();
   // ==========================================
   // VIEW 1: LOGGED OUT (The Big Rectangle)
   // ==========================================
-  if (!userId) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center px-4">
         
@@ -32,13 +32,13 @@ export default function StaffPage() {
           
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
             <SignInButton mode="modal">
-              <button className="flex-1 bg-teal-600 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-md">
+              <button className="flex-1 bg-teal-600 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-md cursor-pointer">
                 Sign In
               </button>
             </SignInButton>
             
             <SignUpButton mode="modal">
-              <button className="flex-1 bg-white text-teal-700 border-2 border-teal-100 px-6 py-3.5 rounded-xl font-bold hover:bg-teal-50 transition-colors">
+              <button className="flex-1 bg-white text-teal-700 border-2 border-teal-100 px-6 py-3.5 rounded-xl font-bold hover:bg-teal-50 transition-colors cursor-pointer">
                 Create Account
               </button>
             </SignUpButton>
@@ -71,12 +71,6 @@ export default function StaffPage() {
         </p>
       </div>
 
-      <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl">
-        <p className="text-sm text-amber-800 font-bold">
-          Developer Mode Active: Your Clerk User ID is <span className="font-mono bg-amber-100 px-2 py-1 rounded">{userId}</span>
-        </p>
-      </div>
-
       <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
         <div className="max-w-xl">
           <h3 className="text-2xl font-bold text-slate-800 mb-3">
@@ -85,11 +79,17 @@ export default function StaffPage() {
           <p className="text-slate-500 mb-6 font-medium leading-relaxed">
             You currently haven't claimed any libraries. Claiming your library allows you to edit details, upload a logo, and manually manage your calendar events.
           </p>
-          <button className="bg-teal-600 text-white px-8 py-3 rounded-full font-bold hover:bg-teal-700 transition-colors shadow-sm">
+          <button className="bg-teal-600 text-white px-8 py-3 rounded-full font-bold hover:bg-teal-700 transition-colors shadow-sm cursor-pointer">
             Claim a Library
           </button>
         </div>
+        
       </div>
+      <SignOutButton>
+            <button className="flex-1 bg-teal-600 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-teal-700 transition-colors shadow-md cursor-pointer">
+                Sign Out
+              </button>
+        </SignOutButton>
     </div>
   );
 }
