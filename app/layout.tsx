@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ClerkProvider } from '@clerk/nextjs'
 import "./globals.css";
 import Script from 'next/script';
 
@@ -32,6 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        
         {/* 1. The custom external script Plausible generated for you */}
         <Script 
           id="plausible-external"

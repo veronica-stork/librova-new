@@ -1,6 +1,15 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default clerkMiddleware();
+// 1. Define the routes you want to hide behind the login screen.
+const isStaffSubRoute = createRouteMatcher(['/staff/(.*)']);
+
+export default clerkMiddleware( (auth, req) => {
+  // 2. If the user tries to go to a staff route, force them to log in!
+  // If they go anywhere else (like /search), this gets skipped and they stay public.
+  if (isStaffSubRoute(req)) {
+    auth.protect();
+  }
+});
 
 export const config = {
   matcher: [
