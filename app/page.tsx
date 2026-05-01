@@ -78,7 +78,7 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         </svg>
       </div>
       <h3 className="text-2xl font-extrabold text-white mb-2">You're on the list!</h3>
-      <p className="text-teal-100 font-medium">We'll let you know the second Librova goes live.</p>
+      <p className="text-teal-100 font-medium">Look out for an email with next steps.</p>
     </div>
   ) : (
     /* We use a conditional flex-col if staff mode is active to keep things from squishing */
@@ -109,13 +109,13 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         disabled={status === 'loading'}
         className="px-8 py-4 bg-amber-400 text-amber-950 font-extrabold text-base rounded-2xl border-b-4 border-amber-600 hover:bg-amber-300 hover:border-amber-500 active:border-b-0 active:translate-y-1 transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
       >
-        {status === 'loading' ? 'Joining...' : 'Join Waitlist'}
+        {status === 'loading' ? 'Joining...' : 'Join Beta'}
       </button>
     </form>
   )}
 
   <p className="text-teal-100 text-xs font-semibold mt-4 text-center">
-    <span className="text-rose-600">No spam.</span> We promise. Just one email when we launch.
+    <span className="text-rose-600">No spam.</span> We promise.
   </p>
 
   {/* Staff Mode Toggle Area */}
@@ -157,7 +157,7 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </div>
             <h4 className="text-lg font-extrabold text-slate-800 mb-2">Smart Searching</h4>
-            <p className="text-slate-600 text-sm font-medium">Filter by category, distance, or keyword across multiple library systems instantly.</p>
+            <p className="text-slate-600 text-sm font-medium">Filter by category, distance, or keyword across multiple libraries instantly.</p>
           </div>
 
           <div className="bg-white rounded-3xl border-4 border-slate-100 shadow-[0_4px_0_rgb(241,245,249)] p-6 text-center">
@@ -172,8 +172,8 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
             <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 -rotate-2">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
             </div>
-            <h4 className="text-lg font-extrabold text-slate-800 mb-2">AI-Assisted Categorization</h4>
-            <p className="text-slate-600 text-sm font-medium">Our system strategically uses small language models for accurate categorization, so "Family Night" means Family Night.</p>
+            <h4 className="text-lg font-extrabold text-slate-800 mb-2">Daily Updates</h4>
+            <p className="text-slate-600 text-sm font-medium">Site is updated daily, so you know that you're getting a fresh crop of events every time.</p>
           </div>
 
         </div>
@@ -189,10 +189,10 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
       <div>
         <h3 className="text-3xl font-black text-slate-800 mb-4">Why I'm building Librova</h3>
         <p className="text-slate-600 font-medium leading-relaxed mb-4">
-          Hi, I'm Veronica. I live in Northern Dutchess and, as a mom of four, I’ve spent years trying to keep track of library calendars across three different counties just to find a Saturday morning craft or a coding club.
+          Hi, I'm Veronica. I live in Northern Dutchess and, as a mom of four, I've spent years trying to keep track of library calendars across three different counties just to find a Saturday morning craft or a coding club.
         </p>
         <p className="text-slate-600 font-medium leading-relaxed mb-4">
-          With a background in library leadership and technical writing, I realized that the problem isn't a lack of great programming—it's that the data is scattered. 
+          With a background in library leadership and software, I realized that the problem isn't a lack of great programming, it's how tricky it is to find the right event. 
         </p>
         <p className="text-slate-600 font-medium leading-relaxed">
           I'm building Librova to make our incredible Mid-Hudson Library System more accessible to every family in the valley.
@@ -207,7 +207,7 @@ const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   <div className="max-w-5xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
     <div className="text-center md:text-left">
       <p className="text-slate-800 font-black text-lg">Librova</p>
-      <p className="text-slate-500 font-bold text-sm">Connecting the Hudson Valley to its libraries.</p>
+      <p className="text-slate-500 font-bold text-sm">Stop searching. Start showing up.</p>
     </div>
 
     <div className="flex flex-col items-center md:items-end gap-2">
