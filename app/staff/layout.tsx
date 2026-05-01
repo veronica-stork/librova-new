@@ -1,5 +1,4 @@
-import { ClerkProvider, UserButton, Show, SignInButton, SignUpButton } from "@clerk/nextjs";
-import Link from "next/link";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export default function StaffLayout({
   children,
