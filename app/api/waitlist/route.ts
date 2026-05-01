@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     // 2. Define Email Content based on Source
     const subject = isStaff 
       ? "Welcome to the Librova Staff Beta" 
-      : "Welcome to the Librova Waitlist!";
+      : "Welcome to the Librova Beta!";
 
     const htmlContent = isStaff ? `
       <div style="font-family: sans-serif; color: #334155; line-height: 1.6;">
@@ -38,9 +38,18 @@ export async function POST(req: Request) {
       </div>
     ` : `
       <div style="font-family: sans-serif; color: #334155;">
-        <h1 style="color: #0d9488;">Welcome to Librova!</h1>
-        <p>Thanks for joining the waitlist. I'm building Librova to make it easier to find library events in the Mid-Hudson system.</p>
-        <p>We'll let you know as soon as the app goes live!</p>
+        <h1 style="color: #0d9488;">Welcome to the Librova beta - Here's your link</h1>
+        <p>Hi there,</p>
+        <p>Thanks for signing up to beta test Librova! I really appreciate you taking the time, and hope you find it useful.</p>
+        <p><strong>Here's your link:</strong> <a href="librova.com/search">librova.com/search</a></p>
+        <p>Librova automatically aggregates events from Hudson Valley libraries so you can browse what's happening across multiple libraries in one place, rather than having to go to each library's calendar, Facebook, Insta, etc.</p>
+        <p>It is early stage, so you may notice some quirks. That's exactly why I need your eyes on it.</p>
+        <p><strong>Once you've had a chance to poke around, I would love to hear what you think:</strong> <a href="https://tally.so/r/GxYR1j">Fill out the survey here.</a></p>
+        <p>The survey is short. Just a few questions about what worked, what didn't, and what you wish it did. It shouldn't take more than a few minutes and will help shape what this app becomes in the future.</p>
+        <p>Thanks again for being an early supporter. It means a lot.</p>
+        <p>Veronica Stork
+        <br>Creator of Librova</br>
+        </p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
         <p style="font-size: 12px; color: #94a3b8;">Veronica Stork, Creator of Librova</p>
       </div>
