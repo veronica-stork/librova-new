@@ -15,11 +15,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://librova.com'),
   title: "Librova",
   description: "Library event finder",
   icons: {
     icon: "/favicon.png", 
   },
+
+  openGraph: {
+    title: 'Librova',
+    description: 'Find library events near you',
+    url: 'https://librova.com', 
+    siteName: 'Librova',
+    type: 'website',            
+    locale: 'en_US',
+    images: [
+      {
+        url: '/opengraph-image.png', // Or whatever your file is named in /public
+        width: 1200,
+        height: 630,
+        alt: 'Librova Event Finder',
+      },
+    ],
+  },
+};
 };
 
 export default function RootLayout({
