@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
     // 3. Send the Email
     await resend.emails.send({
-      from: 'Librova <onboarding@resend.dev>', // Change to your domain later
+      from: 'Librova <hello@librova.com>', 
       to: email,
       subject: subject,
       html: htmlContent,
