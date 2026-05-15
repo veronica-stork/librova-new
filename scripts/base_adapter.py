@@ -1,4 +1,5 @@
 import re
+import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
@@ -60,6 +61,11 @@ class BaseLibraryScraper:
                 event.ai_reasoning = ai_data.get("reasoning", "")
                 
                 public_events.append(event)
+
+                # RATE LIMITER
+                # Pause for 4 seconds so we don't exceed 15 requests per minute
+                time.sleep(4)
+            
             else:
                 print(f"🚫 Blocked: {event.title}")
                 
