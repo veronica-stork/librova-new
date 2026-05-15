@@ -34,7 +34,7 @@ def get_ai_category(title: str, description: str) -> dict:
     try:
         # 2. Call the model using the new syntax
         response = client.models.generate_content(
-            model='gemini-flash-latest',
+            model='gemini-3.1-flash-lite-preview',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
