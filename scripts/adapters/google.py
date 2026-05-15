@@ -13,7 +13,7 @@ class GoogleCalendarAdapter(BaseLibraryScraper):
     def __init__(self, library_id: int, calendar_id: str):
         super().__init__(library_id)
         self.calendar_id = calendar_id
-        self.api_key = os.getenv("GOOGLE_API_KEY")
+        self.api_key = os.getenv("GOOGLE_CALENDAR_API_KEY")
 
     def fetch_data(self) -> Any:
         if not self.api_key:
