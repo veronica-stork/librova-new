@@ -1,13 +1,16 @@
 import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
 
+// Internal route for posting new events.
+// This is the route the scraper uses.
+
 export async function POST(request: Request) {
   try {
-    // 1. Basic Security: Check for a secret API key
+
+    // 1. Basic Security: Check for API key
     const authHeader = request.headers.get('authorization');
     const serverKey = process.env.SCRAPER_API_KEY;
 
-    // --- TEMPORARY DEBUGGING ---
     if (!serverKey) {
       return NextResponse.json({ error: 'Vercel is missing the key completely!' }, { status: 401 });
     }
@@ -27,7 +30,7 @@ export async function POST(request: Request) {
     // 3. Parse the incoming JSON payload
     const event = await request.json();
     
-    // 4. Destructure the payload (No default library_id!)
+    // 4. Destructure the payload
     const {
       library_id,
       title,
@@ -47,29 +50,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // 6. Insert into PostgreSQL
-// 6. Insert into PostgreSQL with UPSERT logic
-const result = await sql`
-  INSERT INTO events (
-    library_id, title, description, start_time, end_time, event_url, category_ids, primary_category_id
-  )
-  VALUES (
-    ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, ${category_ids}::int[], ${primary_category_id}
-  )
-  ON CONFLICT (library_id, title, start_time) 
-  DO UPDATE SET 
-    category_ids = EXCLUDED.category_ids,
-    description = EXCLUDED.description,
-    event_url = EXCLUDED.event_url,
-    primary_category_id = EXCLUDED.primary_category_id
-  RETURNING *;
-`;
+    // 6. Insert into PostgreSQL with UPSERT logic
+    const result = await sql`
+      INSERT INTO events (
+        library_id, title, description, start_time, end_time, event_url, category_ids, primary_category_id
+      )
+      VALUES (
+        ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, ${category_ids}::int[], ${primary_category_id}
+      )
+      ON CONFLICT (library_id, title, start_time) 
+      DO UPDATE SET 
+        category_ids = EXCLUDED.category_ids,
+        description = EXCLUDED.description,
+        event_url = EXCLUDED.event_url,
+        primary_category_id = EXCLUDED.primary_category_id
+      RETURNING *;
+    `;
 
-    // Neon returns an array of rows directly
-    return NextResponse.json({ success: true, inserted: result.length > 0 }, { status: 201 });
+        // Neon returns an array of rows directly
+        return NextResponse.json({ success: true, inserted: result.length > 0 }, { status: 201 });
 
-  } catch (error) {
-    console.error('Database Error:', error);
-    return NextResponse.json({ error: 'Failed to insert event' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Database Error:', error);
+      return NextResponse.json({ error: 'Failed to insert event' }, { status: 500 });
+    }
 }

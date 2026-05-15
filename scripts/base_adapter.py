@@ -2,8 +2,12 @@ import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
+
 from utils.categorization import extract_category_ids, event_categories, CATEGORY_ID_MAP
 from utils.filtering import is_public_event
+
+# AI categorizer
+from utils.ai_categorization import get_ai_category
 
 ID_TO_CAT_NAME = {v: k for k, v in CATEGORY_ID_MAP.items()}
 
@@ -19,7 +23,8 @@ class BaseLibraryScraper:
         1. Fetch raw data
         2. Normalize into StandardizedEvents
         3. Filter out private/cancelled events (the Bouncer)
-        4. Inject category tags
+        4. Inject standard category tags (Regex)
+        5. Inject AI category tags (Shadow Test)
         """
         raw_data = self.fetch_data()
         if not raw_data:
@@ -36,13 +41,28 @@ class BaseLibraryScraper:
                 metadata = getattr(event, 'raw_metadata', '')
                 text_payload = f"{event.description} {metadata}".strip()
                 
+                # --- 1. EXISTING REGEX LOGIC ---
                 if not event.category_ids:
                     event.category_ids = extract_category_ids(event.title, text_payload)
                 event.primary_category_id = self.determine_primary_category(event.category_ids, event.title)
                 
+                # --- 2. NEW AI SHADOW TEST LOGIC ---
+                ai_data = get_ai_category(event.title, text_payload)
+                
+                event.ai_category_ids = ai_data.get("category_ids", [])
+                
+                # Set the first ID as the primary, or None if the AI failed to return any
+                if event.ai_category_ids:
+                    event.ai_primary_category_id = event.ai_category_ids[0]
+                else:
+                    event.ai_primary_category_id = None
+                    
+                event.ai_reasoning = ai_data.get("reasoning", "")
+                
                 public_events.append(event)
             else:
                 print(f"🚫 Blocked: {event.title}")
+                
         print(f"✅ Successfully processed and tagged {len(public_events)} events for library {self.library_id}")
         return public_events
 
@@ -107,26 +127,20 @@ class BaseLibraryScraper:
         movie_keywords = ['movie', 'film', 'matinee', 'screening', 'cinema']
         
         # 1. THE MOVIE GATEKEEPER
-        # Does the title actually signify this is a "Movie Event"?
         has_movie_keyword = any(k in title_lower for k in movie_keywords)
         
         if MOVIE_ID in category_ids and has_movie_keyword:
             return MOVIE_ID
 
         # 2. DISQUALIFY MOVIE FROM FALLBACK
-        # If the title doesn't say "Movie", we treat the Movie tag as 
-        # secondary (like in the "Teen Time" example).
         eligible_ids = [cid for cid in category_ids if cid != MOVIE_ID]
         if not eligible_ids:
-            # If Movie was the only tag but wasn't in the title, 
-            # we have no choice but to return it or None.
             return MOVIE_ID if has_movie_keyword else None
 
         # 3. AUDIENCE HIERARCHY
         restrictive_audiences = [8, 9, 12] # Teens, Adults, Early Childhood
         broad_audiences = [10, 11]         # Family, Children
         
-        # Check for restrictive audience keywords in title ("Teen Time", "Adult Book Club")
         for aud_id in restrictive_audiences:
             if aud_id in eligible_ids:
                 cat_name = ID_TO_CAT_NAME.get(aud_id, "").lower()
@@ -134,8 +148,6 @@ class BaseLibraryScraper:
                     return aud_id
 
         # 4. SPECIFIC ACTIVITY FALLBACK
-        # If no restrictive audience is in the title, specific activities 
-        # (STEM, Crafts) take precedence over broad audience tags (Family).
         all_audiences = restrictive_audiences + broad_audiences
         specific_activities = [cid for cid in eligible_ids if cid not in all_audiences]
         
@@ -188,7 +200,6 @@ class BaseLibraryScraper:
 
                 # 2. Smart Period Inference
                 if "AM" not in start_time_upper and "PM" not in start_time_upper:
-                    # If the WHOLE string has a PM, and it's not a morning hour (8-11), it's PM
                     try:
                         hour_match = re.search(r'(\d+)', start_time)
                         if hour_match:
@@ -198,7 +209,6 @@ class BaseLibraryScraper:
                             elif "PM" in time_clean_upper:
                                 start_time = f"{start_time} PM"
                             else:
-                                # Default to PM for 12, 1, 2, 3, 4, 5, 6, 7
                                 start_time = f"{start_time} PM"
                     except Exception:
                         start_time = f"{start_time} AM"

@@ -3,6 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 
+// Route for displaying events.
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   
@@ -64,7 +66,7 @@ export async function GET(request: Request) {
     let events;
 
     if (hasLocation) {
-      // Query WITH geographic filtering (PostGIS)
+      // Query WITH geographic filtering (PostGIS) - Orders by location first
       events = await sql`
         SELECT 
           e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, e.primary_category_id,
@@ -88,7 +90,7 @@ export async function GET(request: Request) {
         OFFSET ${offset};
       `;
     } else {
-      // Query WITHOUT geographic filtering (All system events)
+      // Query WITHOUT geographic filtering (All system events) - Orders by date/time
       events = await sql`
         SELECT 
           e.id, e.title, e.description, e.start_time, e.end_time, e.event_url, e.category_ids, e.primary_category_id,
@@ -109,7 +111,7 @@ export async function GET(request: Request) {
       `;
     }
 
-    // Server-side formatting (Intact from your original code)
+    // Server-side formatting
     const formattedEvents = events.map(event => {
       const eventDate = new Date(event.start_time);
       const timeZone = 'America/New_York';
@@ -129,7 +131,7 @@ export async function GET(request: Request) {
         date: eventDate.toLocaleDateString('en-US', { 
           month: 'short', day: 'numeric', year: 'numeric', timeZone 
         }),
-        // Use our new boolean to either show the NY time or "All Day"
+        // Boolean determines whether to show the NY time or "All Day"
         time: isAllDay ? "All Day" : nyTimeString,
         description: event.description || "No description provided.",
         sourceUrl: event.event_url || "#",

@@ -7,7 +7,7 @@ export async function GET() {
     const sql = neon(process.env.POSTGRES_URL || process.env.DATABASE_URL || '');
 
     // 2. Fetch libraries using tagged template literals
-    // We use ST_Y and ST_X to easily pull the lat/lng out of your GEOGRAPHY column
+    // Uses ST_Y and ST_X to pull the lat/lng out of GEOGRAPHY column
     const libraries = await sql`
       SELECT 
         id, 

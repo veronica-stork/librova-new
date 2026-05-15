@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 
+// Route for cleaning up old events.
+
 export async function DELETE(request: Request) {
+    
     // 1. Authenticate the request using the scraper API key
     const authHeader = request.headers.get('authorization');
     const apiKey = process.env.SCRAPER_API_KEY;
@@ -15,7 +18,7 @@ export async function DELETE(request: Request) {
 
     // 2. Connect to the database and execute the cleanup
     try {
-        // Make sure DATABASE_URL is defined in your .env.local
+        
         if (!process.env.DATABASE_URL) {
             throw new Error("DATABASE_URL is not set");
         }

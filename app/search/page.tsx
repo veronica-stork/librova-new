@@ -71,7 +71,7 @@ function LibrovaHomeContent() {
       const clientTime = now.toLocaleTimeString('en-US', { hour12: false });
       params.append('clientTime', clientTime);
 
-      // 👇 NEW: Send the page number to the API
+      // Send the page number to the API
       params.append('page', targetPage.toString());
 
       const queryString = params.toString();
@@ -93,14 +93,14 @@ function LibrovaHomeContent() {
         return; 
       }
 
-      // 👇 NEW: Check if we hit the end of the results (assuming 100 is your limit)
+      // Check if we hit the end of the results (assuming 100 is your limit)
       if (data.length < 100) {
         setHasMore(false);
       } else {
         setHasMore(true);
       }
 
-      // 👇 NEW: Append or Replace logic
+      // Append or Replace logic
       if (isLoadMore) {
         setEvents((prev) => [...prev, ...data]); // Glue new events to the bottom
         setPage(targetPage); // Officially update the page state
@@ -127,10 +127,9 @@ function LibrovaHomeContent() {
     }
   };
 
-  // Trigger fetch when URL parameters change (This handles fresh searches)
+  // Trigger fetch when URL parameters change 
   useEffect(() => {
     fetchEvents(1, false); 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlLat, urlLng, urlQ, urlLocationQuery, urlRadius, urlSort, urlDate, urlLibrary, urlCategories]);
 
   // Fetch libraries once on mount
@@ -182,10 +181,7 @@ function LibrovaHomeContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-200">
-      
-      {/* Navigation Bar (Unchanged) */}
       <nav className="bg-white border-b-4 border-rose-100 sticky top-0 z-50">
-       {/* ... keeping your existing nav code ... */}
       </nav>
 
       {/* Main Content Area */}
@@ -208,7 +204,7 @@ function LibrovaHomeContent() {
                   onClearLibrary={handleClearLibrary}
                   onLibraryClick={handleLibraryClick}
                   onCategoryClick={handleCategoryClick}
-                  // 👇 PASSING THE NEW PAGINATION PROPS
+                  
                   onLoadMore={handleLoadMore}
                   hasMore={hasMore}
                   isLoading={isLoadingMore}
