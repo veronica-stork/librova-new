@@ -15,12 +15,18 @@ class StandardizedEvent:
     category_ids: Optional[List[int]] = None
     primary_category_id: Optional[int] = None
     raw_metadata: str = ""
+    
+    # --- NEW AI FIELDS ---
+    ai_category_ids: Optional[List[int]] = None
+    ai_primary_category_id: Optional[int] = None
+    ai_reasoning: Optional[str] = None
 
     def to_dict(self) -> dict:
         """
         Converts the event to a dictionary, ensuring datetimes are 
         properly formatted to ISO 8601 strings for the JSON payload.
         """
+        # asdict() now automatically includes the new AI fields!
         data = asdict(self)
 
         # Define the local timezone - CHANGE if deploying outside of EST

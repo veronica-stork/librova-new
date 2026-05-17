@@ -63,8 +63,8 @@ class BaseLibraryScraper:
                 public_events.append(event)
 
                 # RATE LIMITER
-                # Pause for 6 seconds so we don't exceed 15 requests per minute
-                time.sleep(6)
+                # Pause for 20 seconds so we don't exceed 5 requests per minute
+                time.sleep(20)
             
             else:
                 print(f"🚫 Blocked: {event.title}")
