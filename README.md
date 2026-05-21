@@ -28,9 +28,21 @@ Librova uses automated library calendar adapters to pull event data from dispara
 
 ### 3. Architecture & Data Flow
 
-**The Adapter Factory:** Explain the modular Python system. How a BaseScraper class allows for quick deployment of new library systems (Assabet, LibCal, etc.).  
-**Spatial Logic:** Mention how you use ST_DWithin to calculate real-time distance from user coordinates.  
-**Categorization Engine:** Describe the heuristic keyword-mapping system that automatically tags events for the UI.  
+**⚙️ The Adapter Factory**  
+Librova utilizes a modular, object-oriented Python architecture designed for rapid deployment of new library system scrapers.
+- **BaseScraper Class**: The foundation of the system. It defines the standardized interface (e.g., `fetch_events()`, `parse_page()`, `format_output()`) that all library-specific scrapers must implement.
+- **Quick Deployment**: By inheriting from the BaseScraper, adding a new library source requires only defining the specific selectors and endpoint logic for that system (Assabet, LibCal, etc.).
+- **Decoupled Maintenance**: Because each adapter is self-contained, a change in one library's website structure does not impact the stability of the others, allowing for isolated troubleshooting and "surgical" updates rather than system-wide refactoring.
+
+**📍 Spatial Logic**  
+To respect geographic boundaries and ensure users only see relevant events, Librova uses PostgreSQL’s PostGIS capabilities.  
+- **Proximity Filtering**: We use the `ST_DWithin` function in our SQL queries to calculate real-time distance between the library’s stored location (a PostGIS geography(Point) type) and the user's coordinates.
+- **Efficiency**: This approach allows the database to perform spatial joins natively, ensuring that "local" results are returned with minimal latency and without the overhead of client-side distance calculations.
+
+**🏷️ Categorization Engine**  
+Librova’s categorization engine is designed to maximize searchability and UI organization while keeping manual intervention to a minimum.
+- **Heuristic Keyword Mapping**: When a new event is ingested, the engine runs a heuristic mapping against a predefined categories table. It scans titles and descriptions for specific triggers to assign category IDs and primary categories.
+- **Human-in-the-Loop**: Automation handles the "first pass," but the system is engineered for perfection via the `is_locked_by_staff` and `human_verified` flags. Once an admin performs a manual correction in the dashboard, the system marks the record as "verified," effectively pinning manual classifications and shielding them from being overwritten by future automated scraper runs. *(Currently under construction)*
 
 ```mermaid
 graph TD
