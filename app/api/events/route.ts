@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 
 // Internal route for posting new events.
 // This is the route the scraper uses.
@@ -90,4 +91,37 @@ export async function POST(request: Request) {
     console.error('Database Error:', error);
     return NextResponse.json({ error: 'Failed to insert event' }, { status: 500 });
   }
+}
+
+export async function PATCH(request: Request) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const body = await request.json();
+  const { id, primary_category_id, category_ids } = body;
+
+  const sql = neon(process.env.DATABASE_URL!);
+
+  // Get user's library_id
+  const staff = await sql`SELECT library_id FROM library_staff WHERE user_id = ${userId}`;
+  const userLibraryId = staff[0]?.library_id;
+
+  // Perform the update ONLY if the event belongs to their library
+  // (Add super-admin bypass if needed)
+  const result = await sql`
+    UPDATE events
+    SET 
+      primary_category_id = ${primary_category_id},
+      category_ids = ${category_ids},
+      human_verified = true,
+      is_locked_by_staff = true
+    WHERE id = ${id} 
+    AND (library_id = ${userLibraryId} OR ${userId === process.env.SUPER_ADMIN_CLERK_ID})
+  `;
+
+  if (result.count === 0) {
+    return NextResponse.json({ error: 'Not authorized to edit this event' }, { status: 403 });
+  }
+
+  return NextResponse.json({ success: true });
 }
