@@ -9,14 +9,14 @@ interface VerifyRowProps {
     description: string;
     start_time: string;
     primary_category_id: number | null;
-    ai_primary_category_id: number | null;
+    // ai_primary_category_id removed!
   };
   categories: Array<{ id: number; tag_name: string }>;
 }
 
 export default function VerifyRow({ event, categories }: VerifyRowProps) {
-  // Prefer human-assigned category if it exists, otherwise fallback to AI's guess
-  const initialSelection = event.primary_category_id || event.ai_primary_category_id || '';
+  // Now relies solely on the primary_category_id fed by your regex scraper
+  const initialSelection = event.primary_category_id || '';
   const [selectedCategory, setSelectedCategory] = useState<string | number>(initialSelection);
   const [status, setStatus] = useState<'idle' | 'saving' | 'done' | 'error'>('idle');
 
@@ -61,11 +61,7 @@ export default function VerifyRow({ event, categories }: VerifyRowProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500 font-mono">{eventDate}</span>
-          {event.ai_primary_category_id && (
-            <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">
-              AI ID: {event.ai_primary_category_id}
-            </span>
-          )}
+          {/* AI Badge completely removed from here */}
         </div>
         <h3 className="font-semibold text-gray-900 truncate mt-1">{event.title}</h3>
       </div>
@@ -74,7 +70,7 @@ export default function VerifyRow({ event, categories }: VerifyRowProps) {
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-48"
+          className="text-sm border-gray-300 rounded-lg p-2 focus:ring-blue-500 focus:border-blue-500 w-full md:w-48 bg-white"
           disabled={status === 'saving'}
         >
           <option value="">-- Choose Category --</option>

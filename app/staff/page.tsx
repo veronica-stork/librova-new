@@ -55,8 +55,9 @@ export default async function StaffPage() {
   }
 
   // GATEWAY 4: Fully authorized Dashboard
+  // Removed ai_primary_category_id from this query!
   const unverifiedEvents = await sql`
-    SELECT id, title, description, start_time, primary_category_id, ai_primary_category_id 
+    SELECT id, title, description, start_time, primary_category_id 
     FROM events 
     WHERE human_verified = false 
     AND (

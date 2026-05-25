@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { checkAndSyncAuth } from '@/lib/auth';
 
 // Internal route for posting new events.
 // This is the route the scraper uses.
@@ -94,20 +94,26 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // 1. Get validated session data (internalId, libraryId, isSuperAdmin, isApproved)
+  const session = await checkAndSyncAuth();
 
+  // 2. Authorization Check
+  if (!session || !session.isApproved) {
+    return NextResponse.json({ error: 'Unauthorized or pending approval' }, { status: 401 });
+  }
+  
   const body = await request.json();
   const { id, primary_category_id, category_ids } = body;
 
+  if (!id) {
+    return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
+  }
+
   const sql = neon(process.env.DATABASE_URL!);
 
-  // Get user's library_id
-  const staff = await sql`SELECT library_id FROM library_staff WHERE user_id = ${userId}`;
-  const userLibraryId = staff[0]?.library_id;
-
-  // Perform the update ONLY if the event belongs to their library
-  // (Add super-admin bypass if needed)
+  // 3. Perform the update
+  // We use session.libraryId and session.isSuperAdmin directly.
+  // Note: We use Boolean(session.isSuperAdmin) to ensure SQL gets a clean value.
   const result = await sql`
     UPDATE events
     SET 
@@ -116,10 +122,15 @@ export async function PATCH(request: Request) {
       human_verified = true,
       is_locked_by_staff = true
     WHERE id = ${id} 
-    AND (library_id = ${userLibraryId} OR ${userId === process.env.SUPER_ADMIN_CLERK_ID})
+    AND (
+      library_id = ${session.libraryId} 
+      OR ${session.isSuperAdmin} = true
+    )
+    RETURNING id
   `;
 
-  if (result.count === 0) {
+  // 4. Check if the update actually happened
+  if (result.length === 0) {
     return NextResponse.json({ error: 'Not authorized to edit this event' }, { status: 403 });
   }
 
