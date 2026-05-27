@@ -76,8 +76,14 @@ export default async function StaffPage() {
     LIMIT 50
   `;
 
-  const categoriesList = await sql`SELECT id, tag_name FROM categories ORDER BY tag_name ASC`;
+  // 1. Fetch the raw, untyped data
+  const rawCategories = await sql`SELECT id, tag_name FROM categories ORDER BY tag_name ASC`;
 
+  // 2. The "Untangle": Map it to the strict shape VerifyRow demands
+  const categoriesList = rawCategories.map((row) => ({
+    id: Number(row.id),
+    tag_name: String(row.tag_name)
+  }));
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center">
