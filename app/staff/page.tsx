@@ -34,8 +34,16 @@ export default async function StaffPage() {
 
   // GATEWAY 2: New user, needs to pick a library & enter name (Onboarding)
   if (!session.libraryId && !session.isSuperAdmin) {
-    // We fetch the libraries here and pass them to the form!
-    const libraries = await sql`SELECT id, name FROM libraries ORDER BY name ASC`;
+    
+    // 1. Fetch the raw, untyped data from the database
+    const rawLibraries = await sql`SELECT id, name FROM libraries ORDER BY name ASC`;
+
+    // 2. Explicitly map the untyped data into a strict format
+    const libraries = rawLibraries.map((row) => ({
+      id: Number(row.id),
+      name: String(row.name)
+    }));
+
     return <OnboardingForm session={session} libraries={libraries} />;
   }
 

@@ -8,9 +8,7 @@ interface VerifyRowProps {
     title: string;
     description: string;
     start_time: string;
-    primary_category_id: number | null;
-    // ai_primary_category_id removed!
-  };
+    primary_category_id: number | null;  };
   categories: Array<{ id: number; tag_name: string }>;
 }
 
