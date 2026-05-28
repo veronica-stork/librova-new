@@ -16,10 +16,10 @@ class StandardizedEvent:
     primary_category_id: Optional[int] = None
     raw_metadata: str = ""
     
-    # --- NEW AI FIELDS ---
-    ai_category_ids: Optional[List[int]] = None
-    ai_primary_category_id: Optional[int] = None
-    ai_reasoning: Optional[str] = None
+    # --- AI FIELDS ---
+    # ai_category_ids: Optional[List[int]] = None
+    # ai_primary_category_id: Optional[int] = None
+    # ai_reasoning: Optional[str] = None
 
     def to_dict(self) -> dict:
         """

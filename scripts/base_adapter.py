@@ -1,5 +1,5 @@
 import re
-import time
+# import time
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List, Any
@@ -8,7 +8,7 @@ from utils.categorization import extract_category_ids, event_categories, CATEGOR
 from utils.filtering import is_public_event
 
 # AI categorizer
-from utils.ai_categorization import get_ai_category
+# from utils.ai_categorization import get_ai_category
 
 ID_TO_CAT_NAME = {v: k for k, v in CATEGORY_ID_MAP.items()}
 
@@ -47,24 +47,24 @@ class BaseLibraryScraper:
                     event.category_ids = extract_category_ids(event.title, text_payload)
                 event.primary_category_id = self.determine_primary_category(event.category_ids, event.title)
                 
-                # --- 2. NEW AI SHADOW TEST LOGIC ---
-                ai_data = get_ai_category(event.title, text_payload)
+                # # --- 2. NEW AI SHADOW TEST LOGIC ---
+                # ai_data = get_ai_category(event.title, text_payload)
                 
-                event.ai_category_ids = ai_data.get("category_ids", [])
+                # event.ai_category_ids = ai_data.get("category_ids", [])
                 
-                # Set the first ID as the primary, or None if the AI failed to return any
-                if event.ai_category_ids:
-                    event.ai_primary_category_id = event.ai_category_ids[0]
-                else:
-                    event.ai_primary_category_id = None
+                # # Set the first ID as the primary, or None if the AI failed to return any
+                # if event.ai_category_ids:
+                #     event.ai_primary_category_id = event.ai_category_ids[0]
+                # else:
+                #     event.ai_primary_category_id = None
                     
-                event.ai_reasoning = ai_data.get("reasoning", "")
+                # event.ai_reasoning = ai_data.get("reasoning", "")
                 
                 public_events.append(event)
 
                 # RATE LIMITER
                 # Pause for 20 seconds so we don't exceed 5 requests per minute
-                time.sleep(20)
+                # time.sleep(20)
             
             else:
                 print(f"🚫 Blocked: {event.title}")

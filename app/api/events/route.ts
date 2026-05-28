@@ -39,12 +39,7 @@ export async function POST(request: Request) {
       end_time = null, 
       event_url = null,
       category_ids = [], 
-      primary_category_id = null,
-      ai_category_ids = [],
-      ai_primary_category_id = null,
-      ai_reasoning = null
-      // We don't pull human_verified from the scraper, because the scraper 
-      // doesn't know if a human verified it. We handle that entirely in the DB.
+      primary_category_id = null
     } = event;
 
     // 5. Explicit Validation
@@ -59,23 +54,16 @@ export async function POST(request: Request) {
     const result = await sql`
       INSERT INTO events (
         library_id, title, description, start_time, end_time, event_url, 
-        category_ids, primary_category_id,
-        ai_category_ids, ai_primary_category_id, ai_reasoning, human_verified
+        category_ids, primary_category_id, human_verified
       )
       VALUES (
         ${library_id}, ${title}, ${description}, ${start_time}, ${end_time}, ${event_url}, 
-        ${category_ids}::int[], ${primary_category_id},
-        ${ai_category_ids}::int[], ${ai_primary_category_id}, ${ai_reasoning}, false
+        ${category_ids}::int[], ${primary_category_id}, true
       )
       ON CONFLICT (library_id, title, start_time) 
       DO UPDATE SET 
         description = EXCLUDED.description,
         event_url = EXCLUDED.event_url,
-        
-        -- Always update the AI's latest guess
-        ai_category_ids = EXCLUDED.ai_category_ids,
-        ai_primary_category_id = EXCLUDED.ai_primary_category_id,
-        ai_reasoning = EXCLUDED.ai_reasoning,
 
         -- ONLY update the public categories if a human HAS NOT locked them in
         category_ids = CASE WHEN events.human_verified = true THEN events.category_ids ELSE EXCLUDED.category_ids END,
