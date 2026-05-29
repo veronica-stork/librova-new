@@ -5,13 +5,12 @@ export default function HeroSection() {
     <section className="relative flex flex-col items-center w-full mb-12">
       
       {/* 1. The Brand Background */}
-      {/* Using a soft gradient or solid brand color. 
-          The rounded-b-[2rem] gives it a friendly, modern curve at the bottom. */}
-      <div className="w-full bg-gradient-to-br from-rose-600 to-rose-700 px-4 pt-16 pb-24 text-center rounded-b-[2.5rem] shadow-inner">
+      {/* Upgraded to use your vibrant teal blending into the rich dark color. */}
+      <div className="w-full bg-gradient-to-br from-librova-teal to-librova-dark px-4 pt-16 pb-24 text-center rounded-b-[2.5rem] shadow-inner">
         <h1 className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-sm">
           Find Library Events Near You
         </h1>
-        <p className="text-rose-100 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+        <p className="text-librova-light text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-90">
           Discover programs, workshops, and activities happening in your local network.
         </p>
       </div>

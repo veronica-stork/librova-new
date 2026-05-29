@@ -10,6 +10,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* --- Core Librova Brand Colors --- */
+  --color-librova-teal: #3aafb9;
+  --color-librova-dark: #1c3a3a;
+  --color-librova-light: #f0f4f5;
+  --color-librova-border: #e0e0e0;
+
+  /* --- Accent Colors --- */
+  --color-librova-accent: #ff6b6b;
+  --color-librova-pink: #ff477e;
+  --color-librova-orange: #ff9f43;
+  --color-librova-red: #c0392b;
 }
 
 @media (prefers-color-scheme: dark) {

@@ -8,7 +8,6 @@ import Hero from '@/components/Hero';
 import { Library, LibraryDirectory } from '../../components/LibraryDirectory';
 import { Suspense } from 'react';
 
-
 function LibrovaHomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -22,7 +21,7 @@ function LibrovaHomeContent() {
   // Pagination State
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false); // Separates initial load spinner from the button spinner
+  const [isLoadingMore, setIsLoadingMore] = useState(false); 
   
   // View Toggle State
   const [currentView, setCurrentView] = useState<'feed' | 'directory'>('feed');
@@ -39,31 +38,27 @@ function LibrovaHomeContent() {
   const urlCategories = searchParams.get('categories') || '';
   const urlLibrary = searchParams.get('library') || '';
 
-  // targetPage and isLoadMore parameters
   const fetchEvents = async (targetPage = 1, isLoadMore = false) => {
     if (isLoadMore) {
       setIsLoadingMore(true);
     } else {
       setIsLoading(true);
-      setPage(1); // Reset page tracking if this is a fresh search!
+      setPage(1); 
     }
 
     try {
       const params = new URLSearchParams();
       
-      // 1. Coordinates (if geocoded by SearchControls)
       if (urlLat && urlLng) {
         params.append('lat', urlLat);
         params.append('lng', urlLng);
         params.append('radius', urlRadius);
       }
       
-      // 2. Keyword Search & Filters
       if (urlQ) params.append('q', urlQ);
       if (urlCategories) params.append('categories', urlCategories);
       if (urlLibrary) params.append('library', urlLibrary);
 
-      // 3. Date, Sort, Time
       params.append('date', urlDate);
       params.append('sort', urlSort);
 
@@ -71,7 +66,6 @@ function LibrovaHomeContent() {
       const clientTime = now.toLocaleTimeString('en-US', { hour12: false });
       params.append('clientTime', clientTime);
 
-      // Send the page number to the API
       params.append('page', targetPage.toString());
 
       const queryString = params.toString();
@@ -85,7 +79,6 @@ function LibrovaHomeContent() {
       
       const data = await response.json();
 
-      // If we asked for today, but got nothing back on a fresh search, auto-forward to tomorrow!
       if (data.length === 0 && urlDate === 'today' && !isLoadMore) {
         const params = new URLSearchParams(searchParams.toString());
         params.set('date', 'tomorrow');
@@ -93,19 +86,17 @@ function LibrovaHomeContent() {
         return; 
       }
 
-      // Check if we hit the end of the results (assuming 100 is your limit)
       if (data.length < 100) {
         setHasMore(false);
       } else {
         setHasMore(true);
       }
 
-      // Append or Replace logic
       if (isLoadMore) {
-        setEvents((prev) => [...prev, ...data]); // Glue new events to the bottom
-        setPage(targetPage); // Officially update the page state
+        setEvents((prev) => [...prev, ...data]); 
+        setPage(targetPage); 
       } else {
-        setEvents(data); // Wipe and replace for a fresh search
+        setEvents(data); 
       }
 
     } catch (error) {
@@ -127,12 +118,10 @@ function LibrovaHomeContent() {
     }
   };
 
-  // Trigger fetch when URL parameters change 
   useEffect(() => {
     fetchEvents(1, false); 
   }, [urlLat, urlLng, urlQ, urlLocationQuery, urlRadius, urlSort, urlDate, urlLibrary, urlCategories]);
 
-  // Fetch libraries once on mount
   useEffect(() => {
     fetchLibraries();
   }, []);
@@ -173,15 +162,16 @@ function LibrovaHomeContent() {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // The function that runs when the user clicks "Load More"
   const handleLoadMore = () => {
     const nextPage = page + 1;
     fetchEvents(nextPage, true);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-200">
-      <nav className="bg-white border-b-4 border-rose-100 sticky top-0 z-50">
+    // Replaced bg-slate-50 and text-slate-800 with your brand colors!
+    <div className="min-h-screen bg-librova-light text-librova-dark font-sans selection:bg-librova-teal/20">
+      {/* Updated the top border to use your brand border color */}
+      <nav className="bg-white border-b border-librova-border sticky top-0 z-50">
       </nav>
 
       {/* Main Content Area */}
@@ -191,10 +181,10 @@ function LibrovaHomeContent() {
             <Hero />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-              {/* Only show the full-page spinner on a FRESH search (page 1) */}
               {isLoading ? (
                 <div className="flex justify-center items-center py-20">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+                  {/* Updated the loading spinner to use your primary Teal! */}
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-librova-teal"></div>
                 </div>
               ) : (
                 <EventFeed 
@@ -204,7 +194,6 @@ function LibrovaHomeContent() {
                   onClearLibrary={handleClearLibrary}
                   onLibraryClick={handleLibraryClick}
                   onCategoryClick={handleCategoryClick}
-                  
                   onLoadMore={handleLoadMore}
                   hasMore={hasMore}
                   isLoading={isLoadingMore}
@@ -224,10 +213,10 @@ function LibrovaHomeContent() {
 
 export default function LibrovaHome() {
   return (
-    
+    // Updated Suspense fallback wrapper colors to match
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+      <div className="min-h-screen bg-librova-light flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-librova-teal"></div>
       </div>
     }>
       <LibrovaHomeContent />
