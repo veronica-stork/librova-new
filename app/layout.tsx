@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png", 
   },
+  verification: {
+    google: "gout7w3C1HlP_HAHPK4ynrmYvJ5VjyFBzo7Pbbi9OEM",
+  },
 
   openGraph: {
     title: 'Librova',
