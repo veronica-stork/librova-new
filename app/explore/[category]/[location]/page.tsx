@@ -55,10 +55,47 @@ export default async function ProgrammaticLandingPage({
     LIMIT 15
   `;
 
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": `Free ${categorySlug} Events Near ${locationSlug}`,
+    "description": `Consolidated directory of upcoming public library ${categorySlug} programs within 15 miles of ${locationSlug}.`,
+    "itemListElement": events.map((event, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Event",
+        "name": event.title,
+        // Since event.start_time is a timestamp with time zone, it formats perfectly for ISO-8601
+        "startDate": new Date(event.start_time).toISOString(),
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "location": {
+          "@type": "Place",
+          "name": event.library_name,
+          // Fallback to library name if address isn't directly attached to the event row join
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": event.library_name
+          }
+        },
+        "url": event.event_url || `https://librova.com/explore/${category}/${location}`,
+        "description": `Free community program hosted by ${event.library_name}. Details and registration available on the native library calendar.`
+      }
+    }))
+  };
+
   return (
+    <>
+    {/* 1. Machine-readable schema injection block */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
+
     <div className="min-h-screen bg-librova-light pb-12 font-sans">
       
-      {/* 1. Global Navigation Bar */}
+      {/* 2. Global Navigation Bar */}
       <nav className="bg-white shadow-sm border-b border-librova-border sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-librova-dark tracking-tight hover:opacity-90 transition">
@@ -167,6 +204,7 @@ export default async function ProgrammaticLandingPage({
         </div>
       </main>
     </div>
+    </>
   );
 }
 

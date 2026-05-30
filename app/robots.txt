@@ -3,3 +3,18 @@ Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
+
+# Explicitly identify and call major AI search crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://librova.com/sitemap.xml
