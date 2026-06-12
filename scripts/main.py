@@ -46,11 +46,8 @@ def main():
     if not os.getenv("DATABASE_URL"):
         print("❌ CRITICAL ERROR: .env.local failed to load. Are you sure it's in the root folder?")
         return
-    
-    # 2. Prune old events from the database
-    prune_past_events()
 
-    # 3. Fetch the live library list from Neon
+    # 4. Fetch the live library list from Neon
     libraries = fetch_libraries_from_db()
 
     if not libraries:
@@ -67,7 +64,7 @@ def main():
         "Content-Type": "application/json"
     }
 
-    # 4. Route and run the appropriate adapters
+    # 5. Route and run the appropriate adapters
     for lib in libraries:
         lib_name = lib['name']
         lib_id = lib['id']
@@ -162,6 +159,9 @@ def main():
 
         except Exception as e:
             print(f"❌ Error running {platform} adapter for {lib_name}: {e}")
+
+    # Prune old events from the database
+    prune_past_events()
 
     print("\n✅ All scheduled scraping tasks completed.")
 
