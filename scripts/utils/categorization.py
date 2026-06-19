@@ -8,7 +8,7 @@ CATEGORY_ID_MAP = {
     "early_childhood": 12, "tech_help": 13, "special_needs": 14, 
     "languages": 15, "music": 16, "money": 17, "gardening": 18, "cooking": 19,
     "literacy": 20, "movies": 21, "virtual": 22, "seniors": 23, "lgbtq": 24, "book_clubs": 25,
-    "book_sale": 26, "writing_workshop": 27, "fitness": 28
+    "book_sale": 26, "writing_workshop": 27, "fitness": 28, "summer_reading": 29
 }
 
 event_categories = {
@@ -92,8 +92,9 @@ event_categories = {
     "virtual": ["zoom", "online event", "virtual event", "virtual"],
     "seniors": ["seniors", "65+", "older adults"],
     "lgbtq": ["lgbtq", "lgbtqa", "queer", "lgbtqia", "lgbtqia+"],
-    "book sale": ["book sale"],
-    "writing_workshop": ["writing workshop", "learn to write", "writers workshop", "writer's workshop"]
+    "book_sale": ["book sale"],
+    "writing_workshop": ["writing workshop", "learn to write", "writers workshop", "writer's workshop"],
+    "summer_reading": ["summer reading", "srp", "unearth a story"]
 }
 
 COMPILED_RULES = {}
